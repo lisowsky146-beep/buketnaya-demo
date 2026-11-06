@@ -205,6 +205,15 @@
   .mc .no{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:#8A8073}
   .note{margin-top:16px;padding:14px 18px;border-radius:12px;background:#FDFBF6;border:1px solid #EFE6D6;font-size:13.5px;color:#5B5045}
 
+  .pay{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#FDFCF9}
+  .payhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .payhead h4{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084;font-weight:600}
+  .linkrow{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .linkrow code{background:#fff;border:1px dashed #D9CBB2;border-radius:8px;padding:8px 12px;
+    font-size:12.5px;color:#3E5A49;word-break:break-all}
+  .why{font-size:12.5px;color:#A85751}
+  .nextbtn{background:#1E1B18}
+  .nextbtn:hover{background:#000}
   .chat{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
   .chat h4{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084;margin-bottom:10px;font-weight:600}
   .msgs{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:190px;overflow:auto}
@@ -266,7 +275,7 @@ const TOP = [['p1',24],['p2',19],['p3',17],['p4',12],['p5',9]];
 const CHAN = [['Telegram',38],['Форма на сайте',24],['Телефон',12],['Direct',3]];
 
 const S = {
-  screen:'landing', role:'manager', parsing:false, active:'12',
+  screen:'landing', role:'manager', parsing:false, active:'1',
   live:{ orders:0, revenue:0 },
   orders:[
     { id:'1',  ch:'Telegram', t:'09:12', kind:'order', status:'clarify',
@@ -370,6 +379,23 @@ const S = {
       chat:[{me:false, t:'Хочу что-нибудь необычное, не розы и не хризантемы. Бюджет 2500. Доставка сегодня после 18, Пушкино, подъезд с торца, код 1234', tm:'15:48'}] }
   ]
 };
+const ANSWERS = {
+  '1':  {who:'Елена', phone:'+7 916 402-19-33', addr:'ул. Мира 12, кв. 7',
+         text:'Мытищи, ул. Мира 12, кв. 7. Телефон +7 916 402-19-33. Удобно после 18.'},
+  '2':  {who:'Виктор', phone:'+7 903 118-45-20', addr:'Профсоюзная 41',
+         text:'Москва, Профсоюзная 41. Телефон +7 903 118-45-20.'},
+  '3':  {who:'Ольга', phone:'+7 926 777-31-08', addr:'Сокольнический вал 3',
+         text:'Москва, Сокольнический вал 3, кв. 12. Телефон +7 926 777-31-08. Пионы подойдут.'},
+  '6':  {who:'Анна', phone:'+7 916 555-77-22', addr:'Б. Дмитровка 12',
+         text:'Да, всё верно: Б. Дмитровка 12, сегодня 15:00–17:00.'},
+  '9':  {who:'Michael', phone:'+7 915 220-88-41', addr:'Tverskaya 7',
+         text:'Tverskaya 7, +7 915 220-88-41, thank you!'},
+  '10': {who:'Алина', phone:'+7 999 123-45-67', addr:'Пятницкая 25',
+         text:'Фото пришлю, адрес Пятницкая 25, +7 999 123-45-67. Флорист подтвердил, что повторит.'}
+};
+S.orders.forEach(o=>{ if(ANSWERS[o.id]) o.answer = ANSWERS[o.id]; });
+S.orders.find(o=>o.id==='1').standard = false;
+
 const byId = id => S.orders.find(o=>o.id===id);
 const sum = o => o.items.reduce((s,i)=>s+i.q*i.p,0) + o.delivery;
 const money = n => n.toLocaleString('ru-RU').replace(/,/g,' ') + ' ₽';
@@ -449,6 +475,7 @@ function shell(body){
       <span class="dev">${DEV[S.role]}</span>
       <div class="roles">${roles.map(([k,l])=>
         `<button class="${S.role===k?'on':''}" onclick="setRole('${k}')">${l}</button>`).join('')}</div>
+      <button class="btn nextbtn small" onclick="nextStep()">Следующий шаг →</button>
       <button class="btn ghost small" onclick="setRole('map')">Карта экранов</button>
       <button class="btn ghost small" onclick="resetDemo()">Заново</button>
     </div>
@@ -489,6 +516,32 @@ function chatBlock(o){
       <textarea id="msg" placeholder="Написать клиенту — менеджер может ответить сам, не дожидаясь робота…"></textarea>
       <button class="btn small" onclick="sendMsg()">Отправить</button>
     </div>
+  </div>`;
+}
+
+function payState(o){
+  if(o.pay==='onsite') return {label:'оплата на месте', cls:'ok'};
+  if(o.paidAt) return {label:'оплачено '+o.paidAt, cls:'ok'};
+  if(o.payLink) return {label:'ожидает оплаты', cls:'warn'};
+  return {label:'не выставлена', cls:'mut'};
+}
+function payBlock(o){
+  const st=payState(o);
+  return `<div class="pay">
+    <div class="payhead"><h4>Оплата</h4><span class="pill ${st.cls}">${st.label}</span></div>
+    <div class="seg" style="margin-bottom:10px">
+      <button class="${o.pay==='link'?'on':''}" onclick="setPay('link')">Ссылка СБП</button>
+      <button class="${o.pay==='onsite'?'on':''}" onclick="setPay('onsite')">На месте</button>
+    </div>
+    ${o.pay==='onsite'
+      ? `<div style="font-size:13px;color:#8A8073">Курьер примет оплату при вручении — заказ можно отправлять в работу.</div>`
+      : o.payLink
+        ? `<div class="linkrow"><code>${o.payLink}</code>
+             <button class="btn ghost small" onclick="copyLink()">Копировать</button></div>
+           ${o.paidAt
+             ? `<div style="font-size:12.5px;color:#3E5A49;margin-top:10px">Оплата подтверждена вебхуком банка в ${o.paidAt}. Статус выставлен автоматически, менеджер ничего не нажимал.</div>`
+             : `<button class="btn small" style="margin-top:10px" onclick="simulatePay()">Клиент оплатил (демо) →</button>`}`
+        : `<button class="btn small" onclick="generateLink()">Сформировать ссылку на оплату</button>`}
   </div>`;
 }
 
@@ -537,7 +590,7 @@ function manager(){
     ['Город', o.city || null],
     ['Адрес', o.addr || null],
     ['Окно доставки', o.win || null],
-    ['Оплата', o.pay==='link'?'ссылка СБП':(o.pay==='onsite'?'на месте':null)]
+    ['Оплата', o.pay==='onsite'?'на месте':(o.pay==='link'?(o.paidAt?'оплачено':'ссылка СБП'):null)]
   ].map(([k,v])=>`<div class="f"><span>${k}</span><b style="color:${v?'inherit':'#9B2C2C'}">${v||'уточняется'}</b></div>`).join('');
 
   const items = o.items.length ? `<div class="items">
@@ -556,25 +609,29 @@ function manager(){
 
   const ask = miss ? `<div class="ask"><h4>Робот не додумывает — он спрашивает</h4><p>${o.q}</p>
       <div class="actions" style="margin-top:10px">
-        <button class="btn small" onclick="fillMsg(this)" data-t="${o.q.replace(/"/g,'&quot;')}">Подставить в ответ</button>
-        <span style="font-size:13px;color:#8A8073">можно отредактировать и отправить самому</span></div>
+        <button class="btn small" onclick="simulateAnswer()">Смоделировать ответ клиента</button>
+        <button class="btn ghost small" onclick="fillMsg(this)" data-t="${o.q.replace(/"/g,'&quot;')}">Подставить в ответ</button>
+        <span style="font-size:13px;color:#8A8073">или напишите сами — текст уйдёт в канал клиента</span></div>
     </div>` : '';
 
-  const paySeg=`<div class="seg">
-      <button class="${o.pay==='link'?'on':''}" onclick="setPay('link')">Ссылка СБП</button>
-      <button class="${o.pay==='onsite'?'on':''}" onclick="setPay('onsite')">На месте</button></div>`;
+  const canWork = !miss && (o.pay==='onsite' || !!o.paidAt);
+  const why = miss ? 'не хватает: '+o.missing.join(', ')
+            : (o.pay!=='onsite' && !o.paidAt) ? 'сначала оплата по ссылке'
+            : '';
+  const paySeg = '';
 
   const bar = o.status==='new' ? `<div class="actions">
-      <button class="btn" ${miss?'disabled':''} onclick="toWork()">В работу →</button>
-      ${paySeg}<div class="grow"></div>
-      <span style="font-size:13px;color:#8A8073">одна кнопка — и заказ на планшете флориста</span></div>`
+      <button class="btn" ${canWork?'':'disabled'} onclick="toWork()">В работу →</button>
+      <div class="grow"></div>
+      ${canWork ? `<span style="font-size:13px;color:#3E5A49">всё заполнено и оплачено — можно собирать</span>`
+                : `<span class="why">${why}</span>`}</div>`
     : o.status==='clarify' ? `<div class="actions"><span class="pill warn">ждём ответ клиента</span>
       <span style="font-size:13px;color:#8A8073">кнопка «В работу» включится, когда поля заполнятся</span></div>`
     : o.status==='work' ? `<div class="actions"><span class="pill ok">в работе</span>
-      <span style="font-size:13px;color:#8A8073">на экране флориста${o.pay==='link'?', ссылка на оплату отправлена':''}</span></div>`
+      <span style="font-size:13px;color:#8A8073">на экране флориста</span></div>`
     : o.status==='otk' ? ''
     : o.status==='courier' ? `<div class="actions"><span class="pill ok">у курьера</span></div>`
-    : `<div class="actions"><span class="pill ok">доставлено</span></div>`;
+    : `<div class="actions"><span class="pill ok">доставлено · цикл завершён</span></div>`;
 
   const linkNote = o.kind==='linked' ? `<div class="alertrow" style="border:1px solid #E8D9BC;border-radius:12px;
       background:#FDF7EA;padding:12px 14px;margin-top:14px;font-size:13.5px">
@@ -590,7 +647,7 @@ function manager(){
         <div class="raw"><b>Как пришло</b>${o.raw}</div>
         ${linkNote}
         <div class="fields">${fields}</div>
-        ${restr}${items}${ask}${bar}
+        ${restr}${items}${payBlock(o)}${ask}${bar}
         ${chatBlock(o)}
       </div></div>
   </div>`;
@@ -750,33 +807,45 @@ function sendMsg(){
   const o=byId(S.active); o.chat=o.chat||[]; o.chat.push({me:true,t,tm:now()});
   render(); toast('Отправлено клиенту в '+o.ch);
 }
+function setPay(p){ const o=byId(S.active); o.pay=p; render();
+  toast(p==='link'?'Оплата: сформируем ссылку СБП':'Оплата: на месте, при вручении'); }
+function generateLink(){
+  const o=byId(S.active); o.pay='link';
+  o.payLink='https://pay.buketnaya.ru/'+(2400+Number(o.id))+'?sum='+sum(o);
+  o.chat=o.chat||[]; o.chat.push({me:true,t:'Ссылка на оплату (СБП): '+o.payLink+'\nДействует 30 минут.',tm:now()});
+  render(); toast('Ссылка сформирована и отправлена клиенту');
+}
+function copyLink(){ const o=byId(S.active); if(navigator.clipboard) navigator.clipboard.writeText(o.payLink||''); toast('Ссылка скопирована'); }
+function simulatePay(){
+  const o=byId(S.active); o.paidAt=now();
+  o.chat=o.chat||[]; o.chat.push({me:false,t:'Оплатила, чек прикрепила.',tm:now()});
+  render(); toast('Вебхук банка: оплата получена, статус «Оплачена»');
+}
+function simulateAnswer(){
+  const o=byId(S.active); if(!o || !o.answer) return;
+  o.chat=o.chat||[]; o.chat.push({me:false,t:o.answer.text,tm:now()});
+  o.who=o.answer.who; o.phone=o.answer.phone; o.addr=o.answer.addr;
+  o.missing=[];
+  if(o.status==='clarify') o.status='new';
+  render(); toast('Клиент ответил — все поля карточки заполнены');
+}
 function startDemo(){
-  S.screen='app'; S.role='manager'; S.active='12'; S.parsing=true; render();
-  setTimeout(()=>{ S.parsing=false; byId('12').status='clarify'; render();
-    toast('ИИ разобрал заявку: это заказ, не хватает двух полей'); }, 1500);
+  S.screen='app'; S.role='manager'; S.active='1'; S.parsing=true; render();
+  setTimeout(()=>{ S.parsing=false; byId('1').status='clarify'; render();
+    toast('ИИ разобрал заявку: заказ, не хватает адреса и телефона'); }, 1500);
 }
-function sendQuestion(){
-  const o=byId(S.active);
-  o.chat=o.chat||[]; o.chat.push({me:true,t:o.q,tm:now()});
-  toast('Вопрос отправлен клиенту в '+o.ch);
-  setTimeout(()=>{
-    o.chat.push({me:false,t:'Пушкино, ул. Ленина 15, кв. 3. Телефон +7 916 700-12-45',tm:now()});
-    o.phone='+7 916 700-12-45'; o.who='Мария'; o.addr='ул. Ленина 15, кв. 3';
-    o.missing=[]; o.status='new'; render();
-    toast('Клиент ответил — поля дописаны в ту же карточку'); }, 1200);
-}
-function setPay(p){ byId(S.active).pay=p; render();
-  toast(p==='link'?'Оплата: ссылка СБП уйдёт клиенту':'Оплата: на месте, курьеру'); }
 function focusOrder(st){
   const a=byId(S.active); if(a && a.status===st) return a;
   return S.orders.find(o=>o.status===st);
 }
 function toWork(){
-  const o=byId(S.active); if(!o || (o.missing||[]).length) return;
+  const o=byId(S.active); if(!o) return;
+  if((o.missing||[]).length){ toast('Сначала заполните поля: '+o.missing.join(', ')); return; }
+  if(o.pay!=='onsite' && !o.paidAt){ toast('Сначала дождитесь оплаты по ссылке'); return; }
   o.status='work'; o.chat=o.chat||[];
-  o.chat.push({me:true,t:o.pay==='link'?'Заказ подтверждён, ссылка на оплату отправлена. Собираем.':'Заказ подтверждён. Собираем, курьер приедет в ваше окно.',tm:now()});
+  o.chat.push({me:true,t:'Заказ подтверждён, передали флористу. Собираем.',tm:now()});
   render();
-  toast(o.pay==='link'?'На планшете флориста · ссылка на оплату отправлена':'На планшете флориста · оплата на месте');
+  toast(o.pay==='onsite'?'На планшете флориста · оплата на месте':'На планшете флориста · оплата получена');
   setTimeout(()=>{ S.role='florist'; render(); }, 900);
 }
 function assembled(){
@@ -800,8 +869,21 @@ function otkReturn(){
 function delivered(){
   const o=focusOrder('courier'); if(!o) return; S.active=o.id;
   o.status='delivered'; S.live.revenue += sum(o); S.live.orders += 1;
-  render(); toast('Вручено · владелица видит факт и сумму в аналитике');
+  o.chat=o.chat||[]; o.chat.push({me:true,t:'Букет вручён. Спасибо, что выбрали «Букетную»!',tm:now()});
+  render(); toast('Цикл завершён: вручено, клиент уведомлён, выручка в аналитике');
   setTimeout(()=>{ S.role='owner'; render(); }, 900);
+}
+function nextStep(){
+  const o=byId(S.active); if(!o) return;
+  if(o.kind==='question'||o.kind==='status'){ setRole('owner'); return; }
+  if((o.missing||[]).length){ simulateAnswer(); return; }
+  if(o.pay==='link' && !o.payLink){ generateLink(); return; }
+  if(o.pay==='link' && !o.paidAt){ simulatePay(); return; }
+  if(o.status==='new'){ toWork(); return; }
+  if(o.status==='work'){ if(S.role!=='florist'){ S.role='florist'; render(); } else { assembled(); } return; }
+  if(o.status==='otk'){ otkAccept(); return; }
+  if(o.status==='courier'){ if(S.role!=='courier'){ S.role='courier'; render(); } else { delivered(); } return; }
+  if(o.status==='delivered'){ S.role='owner'; render(); }
 }
 
 /* ---------- deep links ---------- */
@@ -811,18 +893,20 @@ function applyQuery(){
   if(r==='map'){ S.role='map'; return; }
   if(r==='question'){ S.role='manager'; S.active='4'; return; }
   if(r==='linked'){ S.role='manager'; S.active='6'; return; }
-  const o=byId('12');
-  if(['florist','courier','owner'].includes(r)){
-    S.active='12';
-    o.status = r==='florist'?'work':(r==='courier'?'courier':'delivered');
-    o.who='Мария'; o.phone='+7 916 700-12-45'; o.addr='ул. Ленина 15, кв. 3'; o.missing=[]; o.pay='link';
-    if(r==='owner') S.live={orders:1,revenue:sum(o)};
-    S.role=r;
-  } else if(r==='manager'){ S.role='manager'; o.status='clarify'; }
-  else if(r==='ready'){ S.role='manager'; o.status='new'; o.missing=[];
-    o.who='Мария'; o.phone='+7 916 700-12-45'; o.addr='ул. Ленина 15, кв. 3'; }
-  else if(r==='otk'){ S.role='manager'; o.status='otk'; o.missing=[];
-    o.who='Мария'; o.phone='+7 916 700-12-45'; o.addr='ул. Ленина 15, кв. 3'; }
+
+  const o=byId('1');
+  const fill=()=>{ const A=o.answer; o.who=A.who; o.phone=A.phone; o.addr=A.addr; o.missing=[]; };
+  const pay=()=>{ o.pay='link'; o.payLink='https://pay.buketnaya.ru/2401?sum='+sum(o); };
+
+  if(r==='manager'){ S.role='manager'; S.active='1'; o.status='clarify'; return; }
+  if(r==='ready'){ S.role='manager'; S.active='1'; o.status='new'; fill(); return; }
+  if(r==='link'){ S.role='manager'; S.active='1'; o.status='new'; fill(); pay(); return; }
+  if(r==='paid'){ S.role='manager'; S.active='1'; o.status='new'; fill(); pay(); o.paidAt='17:04'; return; }
+  if(r==='work'){ S.role='florist'; S.active='1'; o.status='work'; fill(); pay(); o.paidAt='17:04'; return; }
+  if(r==='otk'){ S.role='manager'; S.active='1'; o.status='otk'; fill(); pay(); o.paidAt='17:04'; return; }
+  if(r==='courier'){ S.role='courier'; S.active='1'; o.status='courier'; fill(); pay(); o.paidAt='17:04'; return; }
+  if(r==='owner'){ S.role='owner'; S.active='1'; o.status='delivered'; fill(); pay(); o.paidAt='17:04';
+    S.live={orders:1,revenue:sum(o)}; return; }
 }
 
 function render(){

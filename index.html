@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Букетная — пульт заказов (демо)</title>
+<style>
+  :root{
+    --bg:#FAF7F2; --paper:#FFFFFF; --ink:#1E1B18; --muted:#6E655B; --line:#E6DDD0;
+    --green:#2F4539; --green2:#3E5A49; --gold:#B08D57;
+    --red:#9B2C2C; --redbg:#FBEDEC; --sand:#F2EBE0;
+    --r:14px; --shadow:0 1px 2px rgba(30,27,24,.04), 0 8px 24px rgba(30,27,24,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .serif{font-family:Georgia,"Times New Roman",serif}
+  h1,h2,h3,h4{margin:0;font-weight:400}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .mono{font-variant-numeric:tabular-nums}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:13px 22px;border-radius:999px;
+    background:var(--green);color:#F7F3EA;letter-spacing:.2px;transition:.18s;white-space:nowrap}
+  .btn:hover{background:var(--green2)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:hover{background:#fff;border-color:#D6C9B6}
+  .btn.small{padding:9px 16px;font-size:13.5px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  .top{display:flex;align-items:center;justify-content:space-between;padding:26px 0}
+  .brand{letter-spacing:.34em;font-size:12.5px;text-transform:uppercase}
+  .brand b{font-weight:600}
+  .top .meta{font-size:12.5px;color:var(--muted);letter-spacing:.08em}
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center;padding:44px 0 40px}
+  .eyebrow{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+  .hero h1{font-size:clamp(38px,4.6vw,58px);line-height:1.06;letter-spacing:-.01em}
+  .hero p.lead{margin:20px 0 0;font-size:17px;line-height:1.62;color:var(--muted);max-width:46ch}
+  .cta{display:flex;align-items:center;gap:18px;margin-top:32px;flex-wrap:wrap}
+  .cta small{color:var(--muted);font-size:13px}
+  .facts{display:flex;gap:34px;margin-top:32px;flex-wrap:wrap}
+  .fact b{display:block;font-size:22px;font-family:Georgia,serif}
+  .fact span{font-size:12.5px;color:var(--muted)}
+  .preview{background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+  .preview .ph{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);
+    letter-spacing:.08em;text-transform:uppercase}
+  .preview .nm{font-family:Georgia,serif;font-size:26px;margin:12px 0 2px}
+  .preview .row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+  .preview .row:last-child{border-bottom:0}
+  .preview .row span:first-child{color:var(--muted)}
+
+  .appbar{position:sticky;top:0;z-index:20;background:rgba(250,247,242,.93);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line)}
+  .appbar .inner{display:flex;align-items:center;gap:16px;padding:11px 0}
+  .appbar .brand{font-size:11px}
+  .roles{display:flex;gap:4px;background:#F0E9DE;padding:4px;border-radius:999px;margin-left:auto}
+  .roles button{padding:8px 14px;border-radius:999px;font-size:13px;color:#6B6157;white-space:nowrap}
+  .roles button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .dev{font-size:11px;color:#8A8073;border:1px solid var(--line);border-radius:999px;padding:5px 10px;white-space:nowrap}
+  .steps{display:flex;gap:6px;align-items:center;padding:10px 0 0;overflow:auto}
+  .step{display:flex;align-items:center;gap:8px;font-size:12px;color:#9A9084;white-space:nowrap}
+  .step i{width:20px;height:20px;border-radius:999px;border:1px solid #DED3C3;display:grid;place-items:center;
+    font-style:normal;font-size:10.5px}
+  .step.on{color:var(--ink)}
+  .step.on i{background:var(--green);border-color:var(--green);color:#F7F3EA}
+  .step.done i{background:#E4DCCD;border-color:#E4DCCD;color:#5B5045}
+  .sep{color:#D6C9B6;font-size:11px}
+
+  main{padding:20px 0 60px}
+  .grid{display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:start}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .inbox{padding:10px}
+  .inbox h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:8px 10px}
+  .msg{display:block;width:100%;text-align:left;padding:11px 12px;border-radius:10px;transition:.15s}
+  .msg:hover{background:#FBF8F3}
+  .msg.on{background:#F4EEE3}
+  .msg .t{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+  .msg .t b{font-weight:600}
+  .msg .s{font-size:12.5px;color:var(--muted);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;
+    -webkit-box-orient:vertical;overflow:hidden}
+  .pill{font-size:10.5px;padding:2px 8px;border-radius:999px;background:var(--sand);color:#5B5045;white-space:nowrap}
+  .pill.new{background:#EAF0E9;color:#2F4539}
+  .pill.warn{background:#FBEDEC;color:var(--red)}
+  .pill.ok{background:#EAF0E9;color:#2F4539}
+  .pill.mut{background:#F0EDE7;color:#8A8073}
+
+  .detail{padding:24px 26px 20px}
+  .dhead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  .dhead .id{font-family:Georgia,serif;font-size:34px;line-height:1}
+  .dhead .sub{color:var(--muted);font-size:13px;margin-top:8px}
+  .raw{margin:16px 0 0;padding:13px 16px;border-left:2px solid var(--gold);background:#FCF9F3;
+    border-radius:0 10px 10px 0;font-size:14px;color:#4A4238;white-space:pre-wrap}
+  .raw b{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+    margin-bottom:6px;font-weight:600}
+  .fields{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:18px}
+  .f{background:#fff;padding:12px 15px}
+  .f span{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9A9084;margin-bottom:5px}
+  .f b{font-weight:500;font-size:14.5px}
+  .items{margin-top:18px;border-top:1px solid var(--line)}
+  .it{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+  .it .n{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .itL{display:flex;gap:12px;align-items:center}
+  .total{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0 2px;font-size:16px}
+  .total b{font-family:Georgia,serif;font-size:26px}
+  .thumb{width:44px;height:44px;border-radius:9px;flex:0 0 auto;border:1px solid rgba(0,0,0,.06)}
+
+  .restrict{margin-top:16px;padding:12px 16px;background:var(--redbg);border:1px solid #F0D6D3;border-radius:12px}
+  .restrict h4{margin:0 0 8px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);font-weight:600}
+  .restrict .tags{display:flex;gap:8px;flex-wrap:wrap}
+  .restrict .tags .chip{background:#fff;color:var(--red);border:1px solid #F0D6D3}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12px;
+    background:var(--sand);color:#5B5045}
+
+  .ask{margin-top:16px;padding:15px;border:1px dashed #D9CBB2;border-radius:12px;background:#FDFBF6}
+  .ask h4{margin:0 0 8px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .ask p{margin:0;font-size:14.5px;line-height:1.55}
+  .ask .ans{margin-top:12px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:9px;
+    font-size:14px;color:#3E5A49}
+  .actions{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+  .seg{display:inline-flex;background:#F0E9DE;border-radius:999px;padding:4px}
+  .seg button{padding:9px 15px;border-radius:999px;font-size:13px;color:#6B6157}
+  .seg button.on{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--ink)}
+  .grow{flex:1}
+  .otk{margin-bottom:16px;padding:13px 18px;border:1px solid #E8D9BC;background:#FDF7EA;border-radius:12px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .otk .txt{flex:1;min-width:200px}
+  .otk b{font-size:14px}
+
+  .florist{display:grid;grid-template-columns:1fr 280px;gap:22px;align-items:start}
+  .kds{background:#2F3B33;color:#F4F1E8;border-radius:18px;padding:28px 30px;box-shadow:0 18px 40px rgba(30,40,32,.22)}
+  .kds .topline{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid rgba(244,241,232,.18);padding-bottom:14px}
+  .kds .num{font-family:Georgia,serif;font-size:40px;line-height:1}
+  .kds .when{font-size:14px;color:#C9C3B4;text-align:right}
+  .kds .when b{display:block;color:#F4F1E8;font-size:19px;font-family:Georgia,serif}
+  .kds h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#A8B3A6;margin:22px 0 10px;font-weight:600}
+  .kds .comp{font-size:22px;line-height:1.4}
+  .kds .comp small{display:block;font-size:13.5px;color:#C9C3B4;margin-top:8px}
+  .kds .stop{display:inline-flex;gap:10px;align-items:center;background:#4A2B28;color:#FFD9D4;
+    border:1px solid #6B3A35;padding:11px 16px;border-radius:10px;font-size:15px}
+  .kds .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+  .kds .box{background:rgba(244,241,232,.06);border:1px solid rgba(244,241,232,.12);border-radius:12px;padding:14px 16px}
+  .kds .box span{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A8B3A6;margin-bottom:6px}
+  .kds .box b{font-weight:500;font-size:15px}
+  .kds .foot{display:flex;gap:12px;margin-top:24px}
+  .kds .btn{background:#F4F1E8;color:#2F3B33;width:100%;padding:16px;font-size:15.5px}
+  .kds .btn:hover{background:#fff}
+  .queue .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;font-size:13.5px;
+    box-shadow:var(--shadow);margin-bottom:10px}
+  .queue .q b{display:block;font-family:Georgia,serif;font-size:18px}
+  .queue .q span{color:var(--muted);font-size:12.5px}
+  .ref{height:170px;border-radius:12px;display:grid;place-items:center;position:relative;overflow:hidden;
+    border:1px solid rgba(0,0,0,.05)}
+  .ref span{position:absolute;bottom:10px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.92)}
+
+  .phone{max-width:430px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:20px;
+    box-shadow:var(--shadow);overflow:hidden}
+  .phone .hd{background:var(--green);color:#F4F1E8;padding:20px 22px}
+  .phone .hd b{font-family:Georgia,serif;font-size:24px;display:block}
+  .phone .hd span{font-size:12.5px;color:#C9D3C9}
+  .phone .bd{padding:20px 22px}
+  .phone .kv{padding:11px 0;border-bottom:1px solid var(--line)}
+  .phone .kv span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084;display:block;margin-bottom:4px}
+  .phone .kv b{font-weight:500;font-size:16px}
+
+  .head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+  .head h2{font-family:Georgia,serif;font-size:30px}
+  .live{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#3E5A49}
+  .pulse{width:8px;height:8px;border-radius:99px;background:#4C7A5A;box-shadow:0 0 0 0 rgba(76,122,90,.6);animation:pl 2s infinite}
+  @keyframes pl{0%{box-shadow:0 0 0 0 rgba(76,122,90,.5)}70%{box-shadow:0 0 0 9px rgba(76,122,90,0)}100%{box-shadow:0 0 0 0 rgba(76,122,90,0)}}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:17px 18px;box-shadow:var(--shadow)}
+  .kpi span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9A9084}
+  .kpi b{display:block;font-family:Georgia,serif;font-size:28px;margin-top:8px}
+  .kpi i{font-style:normal;font-size:12px;color:#3E5A49}
+  .kpi i.dn{color:#A85751}
+  .two{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start}
+  .chart{display:flex;gap:14px;align-items:flex-end;height:190px;padding:18px 18px 0}
+  .bcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;height:100%}
+  .bar{width:100%;border-radius:8px 8px 3px 3px;background:#DFD6C6;transition:height .5s ease}
+  .bcol.today .bar{background:linear-gradient(180deg,#4E7A60,#2F4539)}
+  .bcol span{font-size:11.5px;color:#9A9084}
+  .bcol b{font-size:11.5px;font-weight:500;color:#5B5045}
+  .bcol.today b{color:#2F4539}
+  .rows{padding:6px 18px 14px}
+  .rw{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .rw:last-child{border-bottom:0}
+  .rw .nm{flex:1}
+  .rw .nm small{display:block;color:#9A9084;font-size:11.5px}
+  .rw .b{height:6px;border-radius:99px;background:var(--sand);flex:0 0 80px;overflow:hidden}
+  .rw .b i{display:block;height:100%;background:#6E8B74;border-radius:99px}
+  .rw .v{width:60px;text-align:right;color:#5B5045}
+  .alertrow{display:flex;justify-content:space-between;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line);font-size:13.5px}
+  .alertrow:last-child{border-bottom:0}
+  .alertrow b{color:var(--red)}
+
+  .maptitle{font-family:Georgia,serif;font-size:30px;margin-bottom:6px}
+  .mapgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+  .mc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+  .mc .who{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084}
+  .mc h3{font-family:Georgia,serif;font-size:21px;margin:6px 0 2px}
+  .mc .dev2{font-size:12px;color:var(--gold);margin-bottom:12px}
+  .mc ul{margin:0;padding-left:16px;font-size:13px;color:#4A4238;line-height:1.55}
+  .mc ul li{margin-bottom:5px}
+  .mc .no{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:#8A8073}
+  .note{margin-top:16px;padding:14px 18px;border-radius:12px;background:#FDFBF6;border:1px solid #EFE6D6;font-size:13.5px;color:#5B5045}
+
+  .toast{position:fixed;right:22px;bottom:22px;z-index:60;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+  .tst{background:#1E1B18;color:#F7F3EA;padding:13px 18px;border-radius:12px;font-size:13.5px;
+    box-shadow:0 12px 30px rgba(0,0,0,.25);animation:in .25s ease;max-width:340px}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .skeleton{height:14px;border-radius:6px;background:linear-gradient(90deg,#EEE7DC 25%,#F7F2EA 37%,#EEE7DC 63%);
+    background-size:400% 100%;animation:sh 1.2s infinite}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+  .busy{display:flex;align-items:center;gap:12px;padding:20px 0;color:var(--muted);font-size:14px}
+  .dot{width:9px;height:9px;border-radius:99px;background:var(--gold);animation:p 1s infinite}
+  @keyframes p{0%,100%{opacity:.25}50%{opacity:1}}
+  footer{border-top:1px solid var(--line);padding:24px 0 38px;color:#9A9084;font-size:12.5px;display:flex;
+    justify-content:space-between;gap:20px;flex-wrap:wrap}
+  @media(max-width:980px){
+    .hero{grid-template-columns:1fr;gap:32px}
+    .grid,.florist,.two{grid-template-columns:1fr}
+    .fields{grid-template-columns:1fr 1fr}
+    .kpis{grid-template-columns:1fr 1fr}
+    .mapgrid{grid-template-columns:1fr 1fr}
+    .roles{order:3;margin-left:0}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast" id="toast"></div>
+<script>
+/* ---------- каталог готовых букетов ---------- */
+const CAT = {
+  p1:{name:'Полевой', comp:'герберы, ромашки, сухоцветы', price:2100, c1:'#E4D3A6', c2:'#93A783'},
+  p2:{name:'Пионовый рассвет', comp:'5 пионов, эвкалипт', price:4900, c1:'#F0C9CD', c2:'#C4848C'},
+  p3:{name:'Тюльпанный полдень', comp:'25 тюльпанов', price:2900, c1:'#F2B0AC', c2:'#C26474'},
+  p4:{name:'Белый сад', comp:'15 белых роз, гипсофила', price:5400, c1:'#F5F1E7', c2:'#CBC0A9'},
+  p5:{name:'Коробка · пастель', comp:'композиция в шляпной коробке', price:6500, c1:'#E8D8C9', c2:'#B0937F'}
+};
+const thumb = id => `background:linear-gradient(140deg,${CAT[id].c1},${CAT[id].c2})`;
+
+/* ---------- неделя ---------- */
+const WEEK = [
+  {d:'пн', o:9,  r:38400},{d:'вт', o:11, r:44100},{d:'ср', o:8,  r:31200},
+  {d:'чт', o:12, r:51600},{d:'пт', o:14, r:58900},{d:'сб', o:13, r:54700},{d:'вс', o:10, r:39800}
+];
+const TOP = [['p1',24],['p2',19],['p3',17],['p4',12],['p5',9]];
+const CHAN = [['Telegram',38],['Форма на сайте',24],['Телефон',12],['Direct',3]];
+
+const S = {
+  screen:'landing', role:'manager', parsing:false, active:'124',
+  live:{ orders:0, revenue:0 },
+  orders:[
+    { id:'124', ch:'Telegram', t:'17:02', status:'new',
+      raw:'Хочу что-нибудь необычное, не розы и не хризантемы. Бюджет 2500. Доставка сегодня после 18, Пушкино, подъезд с торца, код 1234.',
+      who:'—', phone:'', addr:'', city:'Пушкино', win:'сегодня, 18:00–21:00',
+      items:[{cat:'p1', q:1, p:2100}], delivery:400,
+      restr:['Не розы','Не хризантемы'], note:'Подъезд с торца, код 1234',
+      missing:['телефон','улица и дом'],
+      q:'Подскажите, пожалуйста, улицу и дом в Пушкино и телефон для курьера.',
+      standard:false, pay:null },
+    { id:'121', ch:'WhatsApp', t:'16:48', status:'clarify', standard:true,
+      raw:'ПРИВЕТ НУЖЕН БУКЕТ СЕГОДНЯ СРОЧНО мама юбилей 60 лет бюджет не важен только не лилии у нее аллергия',
+      who:'Ирина', phone:'+7 916 233-11-04', addr:'', city:'Москва', win:'сегодня до 20:00',
+      items:[{cat:'p2', q:1, p:4900}], delivery:500,
+      restr:['БЕЗ ЛИЛИЙ — аллергия'], note:'', missing:['адрес'],
+      q:'Ирина, подскажите адрес доставки — курьер выезжает через час.', pay:null },
+    { id:'118', ch:'Форма', t:'15:20', status:'work', standard:true,
+      raw:'Нужно 3 одинаковых небольших букетика коллегам на 8 марта, по 1500 каждый, самовывоз',
+      who:'Дмитрий', phone:'+7 903 771-22-18', addr:'Самовывоз, ул. Тверская 8', city:'Москва', win:'8 марта, 10:00–12:00',
+      items:[{cat:'p3', q:3, p:1500}], delivery:0,
+      restr:[], note:'Самовывоз', missing:[], q:'', pay:'link' },
+    { id:'117', ch:'Telegram', t:'14:05', status:'question', standard:true,
+      raw:'добрый день, подскажите цену на пионы',
+      who:'—', phone:'', addr:'', city:'', win:'', items:[], delivery:0,
+      restr:[], note:'', missing:[], q:'', pay:null },
+    { id:'116', ch:'WhatsApp', t:'13:12', status:'paid', standard:true,
+      raw:'Оплатила, скинула чек, когда доставка? заказ на имя Сергей',
+      who:'Сергей', phone:'+7 925 004-77-10', addr:'', city:'Москва', win:'сегодня 16:30',
+      items:[{cat:'p4', q:1, p:5400}], delivery:0,
+      restr:[], note:'', missing:[], q:'', pay:'link' }
+  ]
+};
+const byId = id => S.orders.find(o=>o.id===id);
+const sum = o => o.items.reduce((s,i)=>s+i.q*i.p,0) + o.delivery;
+const money = n => n.toLocaleString('ru-RU').replace(/,/g,' ') + ' ₽';
+const STATUS = {new:'Новая', clarify:'Уточнение', work:'В работе', otk:'ОТК', courier:'У курьера',
+  delivered:'Доставлено', question:'Вопрос', paid:'Оплачена'};
+const PILL = {new:'new', clarify:'warn', work:'ok', otk:'warn', courier:'ok', delivered:'ok',
+  question:'mut', paid:'ok'};
+const DEV = {manager:'ноутбук менеджера', florist:'планшет 10″ на стойке',
+  courier:'телефон курьера · ссылка в браузере', owner:'телефон владелицы', map:'схема ролей'};
+
+function toast(text){
+  const t=document.createElement('div'); t.className='tst'; t.textContent=text;
+  document.getElementById('toast').appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity=0;setTimeout(()=>t.remove(),320)},2800);
+}
+const STEPS=['Заявка','Разбор ИИ','Карточка','В работу','Сборка','ОТК','Доставка'];
+function stepIndex(){
+  const o=byId(S.active); if(!o) return 0;
+  if(S.parsing) return 1;
+  if(o.status==='delivered') return 7;
+  if(o.status==='courier') return 6;
+  if(o.status==='otk') return 5;
+  if(o.status==='work') return 4;
+  if((o.missing||[]).length) return 2;
+  return 3;
+}
+
+/* ---------- landing ---------- */
+function landing(){
+  return `<div class="wrap">
+    <div class="top">
+      <div class="brand">Букетная <b>·</b> пульт заказов</div>
+      <div class="meta">Демо-версия · блок 3</div>
+    </div>
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Интерактивный прототип</div>
+        <h1 class="serif">Один экран<br>вместо переписки,<br>Excel и звонков</h1>
+        <p class="lead">Заявка приходит из любого канала, ИИ превращает её в карточку, менеджер одной кнопкой
+        отправляет заказ в работу, флорист видит состав на планшете, курьер — адрес и код подъезда.</p>
+        <div class="cta">
+          <button class="btn" onclick="startDemo()">Запустить демо-прогон →</button>
+          <small>≈ 60 секунд · заказ из тестового набора</small>
+        </div>
+        <div class="facts">
+          <div class="fact"><b>0</b><span>потерянных заявок</span></div>
+          <div class="fact"><b>1 клик</b><span>от карточки до сборки</span></div>
+          <div class="fact"><b>4 экрана</b><span>менеджер · флорист · курьер · владелица</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="preview">
+          <div class="ph"><span>Заказ №124</span><span>Telegram · 17:02</span></div>
+          <div class="nm serif">Полевой</div>
+          <div style="color:#6E655B;font-size:13.5px;margin-bottom:10px">герберы, ромашки, сухоцветы</div>
+          <div class="row"><span>Куда</span><span>Пушкино, сегодня 18:00–21:00</span></div>
+          <div class="row"><span>Итого</span><span class="mono">2 500 ₽</span></div>
+          <div class="row"><span>Ограничения</span><span><span class="chip" style="background:#FBEDEC;color:#9B2C2C">не розы</span>
+            <span class="chip" style="background:#FBEDEC;color:#9B2C2C">не хризантемы</span></span></div>
+          <div class="row"><span>Не хватает</span><span style="color:#9B2C2C">телефон, улица и дом</span></div>
+        </div>
+      </div>
+    </div>
+    <footer><div>Прототип интерфейса для тестового задания. Данные — 12 «сырых» заявок из документа.</div>
+      <div>Работает без интернета · разбор заявки подготовлен заранее</div></footer>
+  </div>`;
+}
+
+/* ---------- shell ---------- */
+function shell(body){
+  const roles=[['manager','Менеджер'],['florist','Флорист'],['courier','Курьер'],['owner','Владелица']];
+  const idx=stepIndex();
+  return `<div class="appbar"><div class="wrap"><div class="inner">
+      <div class="brand">Букетная <b>·</b> пульт</div>
+      <span class="dev">${DEV[S.role]}</span>
+      <div class="roles">${roles.map(([k,l])=>
+        `<button class="${S.role===k?'on':''}" onclick="setRole('${k}')">${l}</button>`).join('')}</div>
+      <button class="btn ghost small" onclick="setRole('map')">Карта экранов</button>
+      <button class="btn ghost small" onclick="resetDemo()">Заново</button>
+    </div>
+    ${S.role==="map"?"":`<div class="steps">${STEPS.map((s,i)=>{
+      const cls=i<idx?'done':(i===idx?'on':'');
+      return `<div class="step ${cls}"><i>${i<idx?'✓':i+1}</i>${s}</div>`+(i<STEPS.length-1?'<span class="sep">→</span>':'');
+    }).join('')}</div>`}
+  </div></div>
+  <main><div class="wrap">${body}</div></main>
+  <div class="wrap"><footer><div>Демо-прототип · заявки из тестового задания «Букетная»</div>
+    <div>Разбор текста подготовлен заранее; в рабочей версии — YandexGPT</div></footer></div>`;
+}
+function setRole(r){ S.role=r; render(); }
+function resetDemo(){
+  S.screen='landing'; S.role='manager'; S.parsing=false; S.active='124'; S.live={orders:0,revenue:0};
+  const o=byId('124'); o.status='new'; o.who='—'; o.phone=''; o.addr='';
+  o.missing=['телефон','улица и дом']; o.pay=null;
+  S.orders.forEach(x=>{ if(x.id==='118') x.status='work'; });
+  render();
+}
+
+/* ---------- manager ---------- */
+function manager(){
+  const o=byId(S.active);
+  const inbox=S.orders.map(x=>`
+    <button class="msg ${x.id===S.active?'on':''}" onclick="pick('${x.id}')">
+      <div class="t"><b>№${x.id}</b><span class="pill ${PILL[x.status]}">${STATUS[x.status]}</span></div>
+      <div class="s">${x.raw.slice(0,80)}${x.raw.length>80?'…':''}</div>
+    </button>`).join('');
+
+  if(S.parsing) return `<div class="grid">
+    <div class="card inbox"><h3>Входящие</h3>${inbox}</div>
+    <div class="card detail">
+      <div class="busy"><span class="dot"></span> ИИ разбирает сообщение — тип, поля, ограничения…</div>
+      <div class="skeleton" style="width:60%;margin:10px 0"></div>
+      <div class="skeleton" style="width:80%;margin:10px 0"></div>
+      <div class="skeleton" style="width:45%;margin:10px 0"></div>
+    </div></div>`;
+
+  if(o.status==='question') return `<div class="grid">
+    <div class="card inbox"><h3>Входящие</h3>${inbox}</div>
+    <div class="card detail">
+      <div class="dhead"><div><div class="id serif">Не заказ</div>
+        <div class="sub">№${o.id} · ${o.ch} · ${o.t}</div></div><span class="pill mut">вопрос</span></div>
+      <div class="raw"><b>Сообщение клиента</b>${o.raw}</div>
+      <p style="margin-top:16px;color:#4A4238">Робот не создал заказ: это вопрос о цене. Ответ ушёл из прайса
+      автоматически — «Пионовый рассвет» 4 900 ₽. Обращение сохранено в статистике.</p>
+      <div class="actions"><button class="btn ghost small" onclick="pick('124')">← к заказу 124</button></div>
+    </div></div>`;
+
+  const miss=(o.missing||[]).length>0;
+  const otkBanner = o.status==='otk' ? `<div class="otk">
+      <div class="txt"><b>№${o.id} собран — нужен ОТК</b>
+        <div style="font-size:12.5px;color:#8A8073">нестандарт: свои ограничения, без шаблона</div></div>
+      <button class="btn small" onclick="otkAccept()">Принять</button>
+      <button class="btn ghost small" onclick="otkReturn()">Вернуть</button>
+    </div>` : '';
+
+  const fields=[
+    ['Клиент', o.who && o.who!=='—' ? o.who : null],
+    ['Телефон', o.phone || null],
+    ['Получатель', o.who && o.who!=='—' ? o.who : '—'],
+    ['Город', o.city || null],
+    ['Адрес', o.addr || null],
+    ['Окно доставки', o.win || null]
+  ].map(([k,v])=>`<div class="f"><span>${k}</span><b style="color:${v?'inherit':'#9B2C2C'}">${v||'уточняется'}</b></div>`).join('');
+
+  const items = o.items.length ? `<div class="items">
+      ${o.items.map(i=>`<div class="it"><div class="itL">
+        <div class="thumb" style="${thumb(i.cat)}"></div>
+        <div>${CAT[i.cat].name}<div class="n">${CAT[i.cat].comp} · ${i.q} × ${money(i.p)}</div></div></div>
+        <div class="mono">${money(i.q*i.p)}</div></div>`).join('')}
+      ${o.delivery?`<div class="it"><div>Доставка<div class="n">${o.city}</div></div>
+        <div class="mono">${money(o.delivery)}</div></div>`:''}
+      <div class="total"><div>Итого</div><b class="serif mono">${money(sum(o))}</b></div>
+    </div>` : '';
+
+  const restr = o.restr.length ? `<div class="restrict">
+      <h4>Жёсткие ограничения · уходят флористу</h4>
+      <div class="tags">${o.restr.map(r=>`<span class="chip">${r}</span>`).join('')}</div></div>` : '';
+
+  const ask = miss ? `<div class="ask"><h4>Робот не додумывает — он спрашивает</h4><p>${o.q}</p>
+      ${o.phone ? `<div class="ans">Клиент: «Пушкино, ул. Ленина 15, кв. 3. Телефон +7 916 700-12-45»</div>`
+      : `<div class="actions" style="margin-top:12px">
+           <button class="btn small" onclick="sendQuestion()">Отправить вопрос клиенту</button>
+           <span style="font-size:13px;color:#8A8073">уйдёт в тот канал, откуда пришла заявка</span></div>`}
+    </div>` : '';
+
+  const paySeg=`<div class="seg">
+      <button class="${o.pay==='link'?'on':''}" onclick="setPay('link')">Ссылка СБП</button>
+      <button class="${o.pay==='onsite'?'on':''}" onclick="setPay('onsite')">На месте</button></div>`;
+
+  const bar = o.status==='new' ? `<div class="actions">
+      <button class="btn" ${miss?'disabled':''} onclick="toWork()">В работу →</button>
+      ${paySeg}<div class="grow"></div>
+      <span style="font-size:13px;color:#8A8073">одна кнопка — и заказ на планшете флориста</span></div>`
+    : o.status==='clarify' ? `<div class="actions"><span class="pill warn">ждём ответ клиента</span>
+      <span style="font-size:13px;color:#8A8073">кнопка «В работу» включится, когда поля заполнятся</span></div>`
+    : o.status==='work' ? `<div class="actions"><span class="pill ok">в работе</span>
+      <span style="font-size:13px;color:#8A8073">на экране флориста${o.pay==='link'?', ссылка на оплату отправлена':''}</span></div>`
+    : o.status==='otk' ? ''
+    : o.status==='courier' ? `<div class="actions"><span class="pill ok">у курьера</span></div>`
+    : `<div class="actions"><span class="pill ok">доставлено</span></div>`;
+
+  return `<div class="grid">
+    <div class="card inbox"><h3>Входящие · сегодня</h3>${inbox}</div>
+    <div>${otkBanner}
+      <div class="card detail">
+        <div class="dhead"><div><div class="id serif">№${o.id}</div>
+          <div class="sub">${o.ch} · ${o.t} · ${o.standard?'стандартный':'нестандартный'}</div></div>
+          <span class="pill ${PILL[o.status]}">${STATUS[o.status]}</span></div>
+        <div class="raw"><b>Как пришло</b>${o.raw}</div>
+        <div class="fields">${fields}</div>
+        ${restr}${items}${ask}${bar}
+      </div></div>
+  </div>`;
+}
+
+/* ---------- florist ---------- */
+function florist(){
+  const list=S.orders.filter(o=>o.status==='work');
+  const o=list.find(x=>x.id===S.active)||list[0];
+  if(!o) return `<div class="card detail"><div class="busy">Пока нет заказов в сборке.
+    <button class="btn ghost small" onclick="setRole('manager')">в инбокс</button></div></div>`;
+  const it=o.items[0], c=CAT[it.cat];
+  return `<div class="florist">
+    <div class="kds">
+      <div class="topline">
+        <div><span style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#A8B3A6">Заказ</span>
+          <div class="num serif">№${o.id}</div></div>
+        <div class="when">доставить<b>${o.win||'—'}</b></div>
+      </div>
+      <h2>Букет</h2>
+      <div class="comp">${c.name}${it.q>1?` · ${it.q} шт`:''}<small>${c.comp}</small></div>
+      ${o.restr.length?`<h2>Стоп-условия</h2><div class="stop">⚠ ${o.restr.join(' · ')}</div>`:''}
+      <div class="row2">
+        <div class="box"><span>Куда</span><b>${o.city}${o.addr?', '+o.addr:', адрес уточняется'}</b></div>
+        <div class="box"><span>Клиент</span><b>${o.who||'—'}${o.phone?' · '+o.phone:''}</b></div>
+      </div>
+      <div class="foot"><button class="btn" onclick="assembled()">Собрано →</button></div>
+    </div>
+    <div class="queue">
+      <div class="ref" style="${thumb(it.cat)}"><span>референс клиента</span></div>
+      <div style="height:12px"></div>
+      <div class="q"><b>В сборке: ${list.length}</b><span>общий планшет на двоих флористов</span></div>
+      ${list.filter(x=>x.id!==o.id).map(x=>{const cc=CAT[x.items[0].cat];
+        return `<div class="q"><b>№${x.id}</b><span>${cc.name}${x.items[0].q>1?' · '+x.items[0].q+' шт':''}</span>
+        <span style="display:block">${x.win||''}</span></div>`}).join('')}
+    </div></div>`;
+}
+
+/* ---------- courier ---------- */
+function courier(){
+  const o=S.orders.find(x=>x.status==='courier');
+  if(!o) return `<div class="card detail" style="max-width:520px;margin:0 auto"><div class="busy">
+    Нет заказов в доставке. <button class="btn ghost small" onclick="setRole('manager')">в инбокс</button></div></div>`;
+  const it=o.items[0];
+  return `<div class="phone">
+    <div class="hd"><b>Доставка · №${o.id}</b><span>${o.win||''} · ${o.city}</span></div>
+    <div class="bd">
+      <div class="kv"><span>Адрес</span><b>${o.city}, ${o.addr||'—'}</b></div>
+      <div class="kv"><span>Получатель</span><b>${o.who||'—'}${o.phone?' · '+o.phone:''}</b></div>
+      <div class="kv"><span>Инструкции</span><b>${o.note||'—'}</b></div>
+      <div class="kv"><span>Букет</span><b>${CAT[it.cat].name}</b></div>
+      <div class="actions" style="margin-top:16px">
+        <button class="btn" style="width:100%" onclick="delivered()">Вручено + фото →</button></div>
+      <div style="font-size:12.5px;color:#9A9084;margin-top:10px">Ссылка открывается в браузере — приложение курьеру не нужно.</div>
+    </div></div>`;
+}
+
+/* ---------- owner ---------- */
+function owner(){
+  const wo = WEEK.reduce((s,d)=>s+d.o,0) + S.live.orders;
+  const wr = WEEK.reduce((s,d)=>s+d.r,0) + S.live.revenue;
+  const avg = Math.round(wr/wo);
+  const max = Math.max(...WEEK.map(d=>d.r));
+  const topMax = TOP[0][1];
+  const chanMax = CHAN[0][1];
+  const stuck = S.orders.filter(o=>o.status==='clarify').length;
+  return `
+  <div class="head">
+    <div><h2>Аналитика за неделю</h2>
+      <div style="color:#8A8073;font-size:13px">1–7 ноября · обновляется в реальном времени</div></div>
+    <div class="live"><span class="pulse"></span> живой поток</div>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><span>Выручка за неделю</span><b class="mono">${money(wr)}</b><i>+12% к прошлой</i></div>
+    <div class="kpi"><span>Заказов</span><b>${wo}</b><i>в среднем 11 в день</i></div>
+    <div class="kpi"><span>Средний чек</span><b class="mono">${money(avg)}</b><i>+6% к прошлой</i></div>
+    <div class="kpi"><span>Заявка → заказ</span><b>61%</b><i class="dn">−3 п.п. — много уточнений</i></div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <div style="padding:16px 18px 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084">Выручка по дням</div>
+      <div class="chart">
+        ${WEEK.map((d,i)=>{const isToday=i===WEEK.length-1;
+          return `<div class="bcol ${isToday?'today':''}">
+            <b>${Math.round(d.r/1000)}к</b>
+            <div class="bar" style="height:${Math.max(8,d.r/max*100)}%"></div>
+            <span>${d.d}</span></div>`}).join('')}
+      </div>
+      <div style="padding:8px 18px 18px;font-size:12.5px;color:#8A8073">Сегодня уже ${10+S.live.orders} заказов на
+        ${money(39800+S.live.revenue)} — данные подтягиваются из карточек, а не вводятся руками.</div>
+    </div>
+    <div class="card">
+      <div style="padding:16px 18px 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084">Топ букетов</div>
+      <div class="rows">
+        ${TOP.map(([id,n])=>`<div class="rw">
+          <div class="thumb" style="${thumb(id)};width:30px;height:30px;border-radius:7px"></div>
+          <div class="nm">${CAT[id].name}<small>${CAT[id].comp}</small></div>
+          <div class="b"><i style="width:${n/topMax*100}%"></i></div>
+          <div class="v mono">${n} шт</div></div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="two" style="margin-top:18px">
+    <div class="card">
+      <div style="padding:16px 18px 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084">Откуда приходят заказы</div>
+      <div class="rows">
+        ${CHAN.map(([n,v])=>`<div class="rw"><div class="nm">${n}</div>
+          <div class="b"><i style="width:${v/chanMax*100}%"></i></div>
+          <div class="v mono">${v}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div style="padding:16px 18px 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084">Требует внимания</div>
+      <div class="alertrow"><div>Заказы без движения</div><b>${stuck}</b></div>
+      <div class="alertrow"><div>Ждут ответа клиента</div><b>${stuck}</b></div>
+      <div class="alertrow"><div>Доставлено сегодня</div><b style="color:#2F4539">${S.orders.filter(o=>o.status==='delivered').length}</b></div>
+      <div class="alertrow"><div>Средний срок сборки</div><b style="color:#2F4539">18 мин</b></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- карта экранов ---------- */
+function map(){
+  return `<div class="head"><div><h2 class="maptitle">Кто что видит</h2>
+    <div style="color:#8A8073;font-size:13px">Четыре экрана, один поток. Никто не видит лишнего.</div></div></div>
+  <div class="mapgrid">
+    <div class="mc"><div class="who">01 · сотрудник</div><h3>Менеджер</h3>
+      <div class="dev2">ноутбук или телефон</div>
+      <ul><li>все входящие из всех каналов</li><li>карточка: поля, ограничения, сумма</li>
+        <li>кнопка «В работу» и выбор оплаты</li><li>очередь ОТК для нестандарта</li></ul>
+      <div class="no">Не видит: маршрут курьера и загрузку цеха по времени.</div></div>
+    <div class="mc"><div class="who">02 · производство</div><h3>Флорист</h3>
+      <div class="dev2">общий планшет 10″ на стойке</div>
+      <ul><li>очередь сборки, один заказ крупно</li><li>состав и фото-референс</li>
+        <li>стоп-условия красным: аллергия</li><li>срок и кнопка «Собрано»</li></ul>
+      <div class="no">Не видит: цены, скидки и адреса клиентов — чтобы не отвлекать.</div></div>
+    <div class="mc"><div class="who">03 · доставка</div><h3>Курьер</h3>
+      <div class="dev2">телефон · ссылка в браузере</div>
+      <ul><li>адрес, окно, код подъезда</li><li>что везёт и кому</li>
+        <li>кнопка «Вручено» + фото</li></ul>
+      <div class="no">Не видит: остальные заказы и суммы — только своё задание.</div></div>
+    <div class="mc"><div class="who">04 · управление</div><h3>Владелица</h3>
+      <div class="dev2">телефон</div>
+      <ul><li>выручка и заказы за неделю</li><li>топ букетов и каналы</li>
+        <li>что зависло и требует внимания</li></ul>
+      <div class="no">Не видит: переписку целиком — только факты и суммы.</div></div>
+  </div>
+  <div class="note"><b>Клиент</b> не входит в систему вообще: пишет в привычный канал, получает ответ, ссылку на оплату
+    и статус. Ничего не устанавливает.</div>`;
+}
+
+/* ---------- действия ---------- */
+function pick(id){ S.active=id; render(); }
+function startDemo(){
+  S.screen='app'; S.role='manager'; S.active='124'; S.parsing=true; render();
+  setTimeout(()=>{ S.parsing=false; byId('124').status='clarify'; render();
+    toast('ИИ разобрал заявку: это заказ, не хватает двух полей'); }, 1500);
+}
+function sendQuestion(){
+  toast('Вопрос отправлен клиенту в Telegram');
+  setTimeout(()=>{ const o=byId('124');
+    o.phone='+7 916 700-12-45'; o.who='Мария'; o.addr='ул. Ленина 15, кв. 3';
+    o.missing=[]; o.status='new'; render();
+    toast('Клиент ответил — поля дописаны в ту же карточку'); }, 1200);
+}
+function setPay(p){ byId(S.active).pay=p; render();
+  toast(p==='link'?'Оплата: ссылка СБП уйдёт клиенту':'Оплата: на месте, курьеру'); }
+function toWork(){
+  const o=byId(S.active); if((o.missing||[]).length) return;
+  o.status='work'; render();
+  toast(o.pay==='link'?'На планшете флориста · ссылка на оплату отправлена':'На планшете флориста · оплата на месте');
+  setTimeout(()=>{ S.role='florist'; render(); }, 900);
+}
+function assembled(){
+  const o=S.orders.find(x=>x.status==='work')||byId(S.active);
+  if(o.standard){ o.status='courier'; render(); toast('Стандартный заказ — ОТК не требуется');
+    setTimeout(()=>{S.role='courier';render()},700); }
+  else { o.status='otk'; render(); toast('Нестандарт → отправлено на ОТК');
+    setTimeout(()=>{ S.role='manager'; render(); }, 800); }
+}
+function otkAccept(){
+  const o=S.orders.find(x=>x.status==='otk'); o.status='courier'; render();
+  toast('ОТК пройден — заказ у курьера');
+  setTimeout(()=>{ S.role='courier'; render(); }, 800);
+}
+function otkReturn(){
+  const o=S.orders.find(x=>x.status==='otk'); o.status='work'; render();
+  toast('Возвращено флористу с комментарием');
+  setTimeout(()=>{ S.role='florist'; render(); }, 800);
+}
+function delivered(){
+  const o=S.orders.find(x=>x.status==='courier'); if(!o) return;
+  o.status='delivered'; S.live.revenue += sum(o); S.live.orders += 1;
+  render(); toast('Вручено · владелица видит факт и сумму в аналитике');
+  setTimeout(()=>{ S.role='owner'; render(); }, 900);
+}
+
+/* ---------- deep links ---------- */
+function applyQuery(){
+  const q=new URLSearchParams(location.search), r=q.get('r'); if(!r) return;
+  S.screen='app';
+  if(r==='map'){ S.role='map'; return; }
+  const o=byId('124');
+  if(['florist','courier','owner'].includes(r)){
+    o.status = r==='florist'?'work':(r==='courier'?'courier':'delivered');
+    o.who='Мария'; o.phone='+7 916 700-12-45'; o.addr='ул. Ленина 15, кв. 3'; o.missing=[]; o.pay='link';
+    if(r==='owner') S.live={orders:1,revenue:sum(o)};
+    S.role=r;
+  } else if(r==='manager'){ S.role='manager'; o.status='clarify'; }
+  else if(r==='ready'){ S.role='manager'; o.status='new'; o.missing=[];
+    o.who='Мария'; o.phone='+7 916 700-12-45'; o.addr='ул. Ленина 15, кв. 3'; }
+  else if(r==='otk'){ S.role='manager'; o.status='otk'; o.missing=[];
+    o.who='Мария'; o.phone='+7 916 700-12-45'; o.addr='ул. Ленина 15, кв. 3'; }
+}
+
+function render(){
+  const root=document.getElementById('root');
+  if(S.screen==='landing'){ root.innerHTML=landing(); return; }
+  const body = S.role==='manager'?manager():S.role==='florist'?florist():
+               S.role==='courier'?courier():S.role==='map'?map():owner();
+  root.innerHTML=shell(body);
+}
+applyQuery(); render();
+</script>
+</body>
+</html>

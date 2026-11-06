@@ -205,6 +205,21 @@
   .mc .no{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:#8A8073}
   .note{margin-top:16px;padding:14px 18px;border-radius:12px;background:#FDFBF6;border:1px solid #EFE6D6;font-size:13.5px;color:#5B5045}
 
+  .chat{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+  .chat h4{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9A9084;margin-bottom:10px;font-weight:600}
+  .msgs{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:190px;overflow:auto}
+  .bub{max-width:78%;padding:9px 13px;border-radius:12px;font-size:13.5px;line-height:1.45}
+  .bub.client{background:#F6F1E7;color:#3A332B;border-bottom-left-radius:4px}
+  .bub.me{background:#2F4539;color:#F2EFE6;align-self:flex-end;border-bottom-right-radius:4px}
+  .bub .tm{display:block;font-size:10.5px;opacity:.6;margin-top:4px}
+  .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .quick button{font-size:12px;padding:6px 11px;border-radius:999px;border:1px solid var(--line);
+    color:#5B5045;background:#fff}
+  .quick button:hover{background:#FBF8F3;border-color:#D6C9B6}
+  .composer{display:flex;gap:10px;align-items:flex-end}
+  .composer textarea{flex:1;resize:vertical;min-height:54px;padding:11px 13px;border:1px solid var(--line);
+    border-radius:12px;font:inherit;font-size:13.5px;background:#fff;color:var(--ink)}
+  .composer textarea:focus{outline:0;border-color:#C9B99E}
   .toast{position:fixed;right:22px;bottom:22px;z-index:60;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
   .tst{background:#1E1B18;color:#F7F3EA;padding:13px 18px;border-radius:12px;font-size:13.5px;
     box-shadow:0 12px 30px rgba(0,0,0,.25);animation:in .25s ease;max-width:340px}
@@ -237,7 +252,8 @@ const CAT = {
   p2:{name:'Пионовый рассвет', comp:'5 пионов, эвкалипт', price:4900, c1:'#F0C9CD', c2:'#C4848C'},
   p3:{name:'Тюльпанный полдень', comp:'25 тюльпанов', price:2900, c1:'#F2B0AC', c2:'#C26474'},
   p4:{name:'Белый сад', comp:'15 белых роз, гипсофила', price:5400, c1:'#F5F1E7', c2:'#CBC0A9'},
-  p5:{name:'Коробка · пастель', comp:'композиция в шляпной коробке', price:6500, c1:'#E8D8C9', c2:'#B0937F'}
+  p5:{name:'Коробка · пастель', comp:'композиция в шляпной коробке', price:6500, c1:'#E8D8C9', c2:'#B0937F'},
+  p6:{name:'Алые 25', comp:'25 красных роз, упаковка', price:4500, c1:'#E9A9A3', c2:'#A8303F'}
 };
 const thumb = id => `background:linear-gradient(140deg,${CAT[id].c1},${CAT[id].c2})`;
 
@@ -250,37 +266,108 @@ const TOP = [['p1',24],['p2',19],['p3',17],['p4',12],['p5',9]];
 const CHAN = [['Telegram',38],['Форма на сайте',24],['Телефон',12],['Direct',3]];
 
 const S = {
-  screen:'landing', role:'manager', parsing:false, active:'124',
+  screen:'landing', role:'manager', parsing:false, active:'12',
   live:{ orders:0, revenue:0 },
   orders:[
-    { id:'124', ch:'Telegram', t:'17:02', status:'new',
-      raw:'Хочу что-нибудь необычное, не розы и не хризантемы. Бюджет 2500. Доставка сегодня после 18, Пушкино, подъезд с торца, код 1234.',
+    { id:'1',  ch:'Telegram', t:'09:12', kind:'order', status:'clarify',
+      raw:'Здравствуйте! Хочу букет на завтра тыс на 3, девушке, что-то яркое. Доставка в Мытищи, ближе к вечеру',
+      who:'—', phone:'', addr:'', city:'Мытищи', win:'завтра, 17:00–21:00',
+      items:[{cat:'p1', q:1, p:2100}], delivery:700,
+      restr:[], note:'', missing:['адрес','телефон'],
+      q:'Подскажите адрес в Мытищах и телефон получателя — и во сколько удобно, чтобы курьер попал в вечернее окно?',
+      standard:true, pay:null, chat:[{me:false, t:'Хочу букет на завтра тыс на 3, девушке, что-то яркое. Доставка в Мытищи, ближе к вечеру', tm:'09:12'}] },
+
+    { id:'2',  ch:'WhatsApp', t:'10:05', kind:'order', status:'clarify',
+      raw:'Можно 25 роз красных? Адрес уточню позже. Оплата картой',
+      who:'—', phone:'', addr:'', city:'Москва', win:'уточняется',
+      items:[{cat:'p6', q:1, p:4500}], delivery:500,
+      restr:[], note:'Оплата картой', missing:['адрес'],
+      q:'Приняли: 25 красных роз. Подскажите адрес доставки, как будет удобно — и во сколько примерно?',
+      standard:true, pay:'link', chat:[{me:false, t:'Можно 25 роз красных? Адрес уточню позже. Оплата картой', tm:'10:05'}] },
+
+    { id:'3',  ch:'Telegram', t:'10:41', kind:'order', status:'clarify',
+      raw:'ПРИВЕТ НУЖЕН БУКЕТ СЕГОДНЯ СРОЧНО мама юбилей 60 лет бюджет не важен только не лилии у нее аллергия',
+      who:'—', phone:'', addr:'', city:'Москва', win:'сегодня до 20:00',
+      items:[{cat:'p2', q:1, p:4900}], delivery:500,
+      restr:['БЕЗ ЛИЛИЙ — аллергия'], note:'Юбилей 60 лет', missing:['адрес','телефон'],
+      q:'Срочный заказ приняли. Подскажите адрес и телефон — и подтвердите, что пионы подойдут вместо лилий.',
+      standard:false, pay:null, chat:[{me:false, t:'ПРИВЕТ НУЖЕН БУКЕТ СЕГОДНЯ СРОЧНО мама юбилей 60 лет бюджет не важен только не лилии у нее аллергия', tm:'10:41'}] },
+
+    { id:'4',  ch:'Telegram', t:'11:03', kind:'question',
+      raw:'добрый день, подскажите цену на пионы',
+      who:'—', phone:'', addr:'', city:'', win:'', items:[], delivery:0, restr:[], note:'', missing:[], q:'', pay:null,
+      answer:'«Пионовый рассвет» — 4 900 ₽: 5 пионов, эвкалипт. Доставка по Москве 500 ₽, ближайшее окно сегодня 18:00–21:00.',
+      chat:[{me:false, t:'добрый день, подскажите цену на пионы', tm:'11:03'},
+            {me:true, t:'«Пионовый рассвет» — 4 900 ₽: 5 пионов, эвкалипт. Доставка по Москве 500 ₽, сегодня есть окно 18:00–21:00.', tm:'11:03'}] },
+
+    { id:'5',  ch:'Форма на сайте', t:'11:37', kind:'order', status:'new',
+      raw:'Заказ: композиция в коробке, пастель, 5000р, доставка 14 февраля к 10 утра, ул. Ленина 15 кв 3, получатель Ольга, +7 900 000-00-00',
+      who:'Ольга', phone:'+7 900 000-00-00', addr:'ул. Ленина 15, кв. 3', city:'Москва', win:'14 февраля, к 10:00',
+      items:[{cat:'p5', q:1, p:5000}], delivery:500,
+      restr:[], note:'Пиковая дата — предзаказ', missing:[],
+      q:'', standard:false, pay:null,
+      chat:[{me:false, t:'Заказ: композиция в коробке, пастель, 5000р, доставка 14 февраля к 10 утра, ул. Ленина 15 кв 3, получатель Ольга', tm:'11:37'}] },
+
+    { id:'6',  ch:'WhatsApp', t:'12:10', kind:'linked', status:'clarify',
+      raw:'это Анна, я вам звонила вчера, хотела тот букет с эвкалиптом, подтверждаю, адрес тот же',
+      who:'Анна', phone:'+7 916 555-77-22', addr:'Б. Дмитровка 12', city:'Москва', win:'сегодня 15:00–17:00',
+      items:[{cat:'p2', q:1, p:4900}], delivery:500,
+      restr:[], note:'Привязано к заказу №109', missing:['подтверждение адреса'],
+      q:'Анна, подтверждаю: «Пионовый рассвет», Б. Дмитровка 12, сегодня 15:00–17:00. Всё верно?',
+      linked:'№109 от 5 ноября',
+      standard:true, pay:'link',
+      chat:[{me:false, t:'это Анна, я вам звонила вчера, хотела тот букет с эвкалиптом, подтверждаю, адрес тот же', tm:'12:10'}] },
+
+    { id:'7',  ch:'Telegram', t:'12:44', kind:'question',
+      raw:'Сколько стоит доставка в Королёв?',
+      who:'—', phone:'', addr:'', city:'', win:'', items:[], delivery:0, restr:[], note:'', missing:[], q:'', pay:null,
+      answer:'Королёв — 700 ₽, ближайшее окно сегодня 17:00–21:00. При заказе от 6 000 ₽ доставка бесплатная.',
+      chat:[{me:false, t:'Сколько стоит доставка в Королёв?', tm:'12:44'},
+            {me:true, t:'Королёв — 700 ₽, ближайшее окно сегодня 17:00–21:00. При заказе от 6 000 ₽ доставка бесплатная.', tm:'12:44'}] },
+
+    { id:'8',  ch:'Форма на сайте', t:'13:20', kind:'order', status:'work',
+      raw:'Нужно 3 одинаковых небольших букетика коллегам на 8 марта, по 1500 каждый, самовывоз',
+      who:'Дмитрий', phone:'+7 903 771-22-18', addr:'Самовывоз, Тверская 8', city:'Москва', win:'8 марта, 10:00–12:00',
+      items:[{cat:'p3', q:3, p:1500}], delivery:0,
+      restr:[], note:'Самовывоз', missing:[],
+      q:'', standard:true, pay:'link',
+      chat:[{me:false, t:'Нужно 3 одинаковых небольших букетика коллегам на 8 марта, по 1500 каждый, самовывоз', tm:'13:20'}] },
+
+    { id:'9',  ch:'Instagram', t:'14:02', kind:'order', status:'clarify',
+      raw:'hi, do you deliver today? need a bouquet for my wife, budget around 4000',
+      who:'—', phone:'', addr:'', city:'Москва', win:'today 18:00–21:00',
+      items:[{cat:'p3', q:1, p:2900}], delivery:500,
+      restr:[], note:'Клиент пишет по-английски', missing:['адрес','телефон'],
+      q:'Hi! Yes, we deliver today. Could you share the address and a phone number for the courier?',
+      standard:true, pay:null,
+      chat:[{me:false, t:'hi, do you deliver today? need a bouquet for my wife, budget around 4000', tm:'14:02'}] },
+
+    { id:'10', ch:'Instagram', t:'14:35', kind:'order', status:'clarify',
+      raw:'здрасьте. букет как на фото (фото.jpg) можно такой же? на субботу',
+      who:'—', phone:'', addr:'', city:'Москва', win:'суббота, 12:00–15:00',
+      items:[{cat:'p4', q:1, p:5400}], delivery:500,
+      restr:[], note:'Заявка по фото — нужен флорист', missing:['адрес','телефон','подтверждение от флориста'],
+      q:'Пришлите, пожалуйста, фото ещё раз — и адрес с телефоном. Флорист подтвердит, что сможет повторить букет.',
+      standard:false, photo:true, pay:null,
+      chat:[{me:false, t:'здрасьте. букет как на фото (фото.jpg) можно такой же? на субботу', tm:'14:35'}] },
+
+    { id:'11', ch:'WhatsApp', t:'15:11', kind:'status',
+      raw:'Оплатила, скинула чек, когда доставка? заказ на имя Сергей',
+      who:'Сергей', phone:'+7 925 004-77-10', addr:'', city:'Москва', win:'сегодня 16:30', items:[], delivery:0,
+      restr:[], note:'', missing:[], q:'', pay:null,
+      answer:'Оплату видим, спасибо. Заказ №116 на Сергея — курьер уже в пути, окно 16:30–17:30. Это не новый заказ, карточка не создана.',
+      chat:[{me:false, t:'Оплатила, скинула чек, когда доставка? заказ на имя Сергей', tm:'15:11'},
+            {me:true, t:'Оплату видим, спасибо. Заказ №116 — курьер в пути, окно 16:30–17:30.', tm:'15:12'}] },
+
+    { id:'12', ch:'Telegram', t:'15:48', kind:'order', status:'new',
+      raw:'Хочу что-нибудь необычное, не розы и не хризантемы. Бюджет 2500. Доставка сегодня после 18, Пушкино, подъезд с торца, код 1234',
       who:'—', phone:'', addr:'', city:'Пушкино', win:'сегодня, 18:00–21:00',
       items:[{cat:'p1', q:1, p:2100}], delivery:400,
       restr:['Не розы','Не хризантемы'], note:'Подъезд с торца, код 1234',
       missing:['телефон','улица и дом'],
       q:'Подскажите, пожалуйста, улицу и дом в Пушкино и телефон для курьера.',
-      standard:false, pay:null },
-    { id:'121', ch:'WhatsApp', t:'16:48', status:'clarify', standard:true,
-      raw:'ПРИВЕТ НУЖЕН БУКЕТ СЕГОДНЯ СРОЧНО мама юбилей 60 лет бюджет не важен только не лилии у нее аллергия',
-      who:'Ирина', phone:'+7 916 233-11-04', addr:'', city:'Москва', win:'сегодня до 20:00',
-      items:[{cat:'p2', q:1, p:4900}], delivery:500,
-      restr:['БЕЗ ЛИЛИЙ — аллергия'], note:'', missing:['адрес'],
-      q:'Ирина, подскажите адрес доставки — курьер выезжает через час.', pay:null },
-    { id:'118', ch:'Форма', t:'15:20', status:'work', standard:true,
-      raw:'Нужно 3 одинаковых небольших букетика коллегам на 8 марта, по 1500 каждый, самовывоз',
-      who:'Дмитрий', phone:'+7 903 771-22-18', addr:'Самовывоз, ул. Тверская 8', city:'Москва', win:'8 марта, 10:00–12:00',
-      items:[{cat:'p3', q:3, p:1500}], delivery:0,
-      restr:[], note:'Самовывоз', missing:[], q:'', pay:'link' },
-    { id:'117', ch:'Telegram', t:'14:05', status:'question', standard:true,
-      raw:'добрый день, подскажите цену на пионы',
-      who:'—', phone:'', addr:'', city:'', win:'', items:[], delivery:0,
-      restr:[], note:'', missing:[], q:'', pay:null },
-    { id:'116', ch:'WhatsApp', t:'13:12', status:'paid', standard:true,
-      raw:'Оплатила, скинула чек, когда доставка? заказ на имя Сергей',
-      who:'Сергей', phone:'+7 925 004-77-10', addr:'', city:'Москва', win:'сегодня 16:30',
-      items:[{cat:'p4', q:1, p:5400}], delivery:0,
-      restr:[], note:'', missing:[], q:'', pay:'link' }
+      standard:false, pay:null,
+      chat:[{me:false, t:'Хочу что-нибудь необычное, не розы и не хризантемы. Бюджет 2500. Доставка сегодня после 18, Пушкино, подъезд с торца, код 1234', tm:'15:48'}] }
   ]
 };
 const byId = id => S.orders.find(o=>o.id===id);
@@ -354,6 +441,8 @@ function landing(){
 /* ---------- shell ---------- */
 function shell(body){
   const roles=[['manager','Менеджер'],['florist','Флорист'],['courier','Курьер'],['owner','Владелица']];
+  const cur=byId(S.active);
+  const noSteps = S.role==='map' || (cur && (cur.kind==='question' || cur.kind==='status'));
   const idx=stepIndex();
   return `<div class="appbar"><div class="wrap"><div class="inner">
       <div class="brand">Букетная <b>·</b> пульт</div>
@@ -363,7 +452,7 @@ function shell(body){
       <button class="btn ghost small" onclick="setRole('map')">Карта экранов</button>
       <button class="btn ghost small" onclick="resetDemo()">Заново</button>
     </div>
-    ${S.role==="map"?"":`<div class="steps">${STEPS.map((s,i)=>{
+    ${noSteps?"":`<div class="steps">${STEPS.map((s,i)=>{
       const cls=i<idx?'done':(i===idx?'on':'');
       return `<div class="step ${cls}"><i>${i<idx?'✓':i+1}</i>${s}</div>`+(i<STEPS.length-1?'<span class="sep">→</span>':'');
     }).join('')}</div>`}
@@ -374,24 +463,46 @@ function shell(body){
 }
 function setRole(r){ S.role=r; render(); }
 function resetDemo(){
-  S.screen='landing'; S.role='manager'; S.parsing=false; S.active='124'; S.live={orders:0,revenue:0};
-  const o=byId('124'); o.status='new'; o.who='—'; o.phone=''; o.addr='';
-  o.missing=['телефон','улица и дом']; o.pay=null;
-  S.orders.forEach(x=>{ if(x.id==='118') x.status='work'; });
+  S.screen='landing'; S.role='manager'; S.parsing=false; S.active='12'; S.live={orders:0,revenue:0};
+  S.orders.forEach(o=>{ o.status = o.kind==='order' ? (o.id==='8'?'work':(o.id==='5'?'new':'clarify'))
+                                 : o.status; o.pay = o.id==='2'||o.id==='8' ? 'link' : o.pay; });
+  const h=byId('12'); h.status='new'; h.who='—'; h.phone=''; h.addr='';
+  h.missing=['телефон','улица и дом']; h.pay=null;
   render();
 }
 
-/* ---------- manager ---------- */
+function now(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+
+function chatBlock(o){
+  const msgs=(o.chat||[]).map(m=>`<div class="bub ${m.me?'me':'client'}">${m.t}<span class="tm">${m.tm||''}</span></div>`).join('');
+  const quick=[];
+  if((o.missing||[]).length && o.q) quick.push(['Вопрос робота', o.q]);
+  if(o.kind==='order'||o.kind==='linked') quick.push(['Приняли заказ','Приняли ваш заказ, возвращаемся с подтверждением в течение 15 минут.']);
+  if(o.pay==='link') quick.push(['Ссылка на оплату','Ссылка на оплату (СБП): https://pay.buketnaya.ru/1247 — действует 30 минут.']);
+  quick.push(['Уточнить адрес','Подскажите, пожалуйста, точный адрес — улица, дом, квартира.']);
+  return `<div class="chat">
+    <h4>Переписка с клиентом</h4>
+    <div class="msgs">${msgs}</div>
+    <div class="quick">${quick.map(x=>
+      `<button onclick="fillMsg(this)" data-t="${x[1].replace(/"/g,'&quot;')}">${x[0]}</button>`).join('')}</div>
+    <div class="composer">
+      <textarea id="msg" placeholder="Написать клиенту — менеджер может ответить сам, не дожидаясь робота…"></textarea>
+      <button class="btn small" onclick="sendMsg()">Отправить</button>
+    </div>
+  </div>`;
+}
+
 function manager(){
   const o=byId(S.active);
   const inbox=S.orders.map(x=>`
     <button class="msg ${x.id===S.active?'on':''}" onclick="pick('${x.id}')">
-      <div class="t"><b>№${x.id}</b><span class="pill ${PILL[x.status]}">${STATUS[x.status]}</span></div>
-      <div class="s">${x.raw.slice(0,80)}${x.raw.length>80?'…':''}</div>
+      <div class="t"><b>№${x.id}</b><span class="pill ${x.status?PILL[x.status]:'mut'}">${x.status?STATUS[x.status]:(x.kind==='question'?'Вопрос':'Оплата')}</span></div>
+      <div class="s">${x.raw.slice(0,74)}${x.raw.length>74?'…':''}</div>
+      <div style="font-size:11px;color:#A79C8C;margin-top:4px">${x.ch} · ${x.t}</div>
     </button>`).join('');
 
   if(S.parsing) return `<div class="grid">
-    <div class="card inbox"><h3>Входящие</h3>${inbox}</div>
+    <div class="card inbox"><h3>Входящие · 12</h3>${inbox}</div>
     <div class="card detail">
       <div class="busy"><span class="dot"></span> ИИ разбирает сообщение — тип, поля, ограничения…</div>
       <div class="skeleton" style="width:60%;margin:10px 0"></div>
@@ -399,16 +510,18 @@ function manager(){
       <div class="skeleton" style="width:45%;margin:10px 0"></div>
     </div></div>`;
 
-  if(o.status==='question') return `<div class="grid">
-    <div class="card inbox"><h3>Входящие</h3>${inbox}</div>
-    <div class="card detail">
-      <div class="dhead"><div><div class="id serif">Не заказ</div>
-        <div class="sub">№${o.id} · ${o.ch} · ${o.t}</div></div><span class="pill mut">вопрос</span></div>
-      <div class="raw"><b>Сообщение клиента</b>${o.raw}</div>
-      <p style="margin-top:16px;color:#4A4238">Робот не создал заказ: это вопрос о цене. Ответ ушёл из прайса
-      автоматически — «Пионовый рассвет» 4 900 ₽. Обращение сохранено в статистике.</p>
-      <div class="actions"><button class="btn ghost small" onclick="pick('124')">← к заказу 124</button></div>
-    </div></div>`;
+  if(o.kind==='question'||o.kind==='status'){
+    return `<div class="grid">
+      <div class="card inbox"><h3>Входящие · 12</h3>${inbox}</div>
+      <div class="card detail">
+        <div class="dhead"><div><div class="id serif">${o.kind==='question'?'Не заказ':'Не новый заказ'}</div>
+          <div class="sub">№${o.id} · ${o.ch} · ${o.t}</div></div>
+          <span class="pill mut">${o.kind==='question'?'вопрос':'оплата'}</span></div>
+        <div class="raw"><b>Сообщение клиента</b>${o.raw}</div>
+        <div class="ask" style="margin-top:14px"><h4>Что ответил робот</h4><p>${o.answer}</p></div>
+        ${chatBlock(o)}
+      </div></div>`;
+  }
 
   const miss=(o.missing||[]).length>0;
   const otkBanner = o.status==='otk' ? `<div class="otk">
@@ -421,10 +534,10 @@ function manager(){
   const fields=[
     ['Клиент', o.who && o.who!=='—' ? o.who : null],
     ['Телефон', o.phone || null],
-    ['Получатель', o.who && o.who!=='—' ? o.who : '—'],
     ['Город', o.city || null],
     ['Адрес', o.addr || null],
-    ['Окно доставки', o.win || null]
+    ['Окно доставки', o.win || null],
+    ['Оплата', o.pay==='link'?'ссылка СБП':(o.pay==='onsite'?'на месте':null)]
   ].map(([k,v])=>`<div class="f"><span>${k}</span><b style="color:${v?'inherit':'#9B2C2C'}">${v||'уточняется'}</b></div>`).join('');
 
   const items = o.items.length ? `<div class="items">
@@ -442,10 +555,9 @@ function manager(){
       <div class="tags">${o.restr.map(r=>`<span class="chip">${r}</span>`).join('')}</div></div>` : '';
 
   const ask = miss ? `<div class="ask"><h4>Робот не додумывает — он спрашивает</h4><p>${o.q}</p>
-      ${o.phone ? `<div class="ans">Клиент: «Пушкино, ул. Ленина 15, кв. 3. Телефон +7 916 700-12-45»</div>`
-      : `<div class="actions" style="margin-top:12px">
-           <button class="btn small" onclick="sendQuestion()">Отправить вопрос клиенту</button>
-           <span style="font-size:13px;color:#8A8073">уйдёт в тот канал, откуда пришла заявка</span></div>`}
+      <div class="actions" style="margin-top:10px">
+        <button class="btn small" onclick="fillMsg(this)" data-t="${o.q.replace(/"/g,'&quot;')}">Подставить в ответ</button>
+        <span style="font-size:13px;color:#8A8073">можно отредактировать и отправить самому</span></div>
     </div>` : '';
 
   const paySeg=`<div class="seg">
@@ -464,16 +576,22 @@ function manager(){
     : o.status==='courier' ? `<div class="actions"><span class="pill ok">у курьера</span></div>`
     : `<div class="actions"><span class="pill ok">доставлено</span></div>`;
 
+  const linkNote = o.kind==='linked' ? `<div class="alertrow" style="border:1px solid #E8D9BC;border-radius:12px;
+      background:#FDF7EA;padding:12px 14px;margin-top:14px;font-size:13.5px">
+      Не новый заказ: привязано к <b>${o.linked}</b>. Данные подтянуты из истории клиента.</div>` : '';
+
   return `<div class="grid">
-    <div class="card inbox"><h3>Входящие · сегодня</h3>${inbox}</div>
+    <div class="card inbox"><h3>Входящие · 12</h3>${inbox}</div>
     <div>${otkBanner}
       <div class="card detail">
         <div class="dhead"><div><div class="id serif">№${o.id}</div>
           <div class="sub">${o.ch} · ${o.t} · ${o.standard?'стандартный':'нестандартный'}</div></div>
           <span class="pill ${PILL[o.status]}">${STATUS[o.status]}</span></div>
         <div class="raw"><b>Как пришло</b>${o.raw}</div>
+        ${linkNote}
         <div class="fields">${fields}</div>
         ${restr}${items}${ask}${bar}
+        ${chatBlock(o)}
       </div></div>
   </div>`;
 }
@@ -626,45 +744,61 @@ function map(){
 
 /* ---------- действия ---------- */
 function pick(id){ S.active=id; render(); }
+function fillMsg(btn){ const el=document.getElementById('msg'); if(el){ el.value=btn.dataset.t; el.focus(); } }
+function sendMsg(){
+  const el=document.getElementById('msg'); const t=(el&&el.value||'').trim(); if(!t) return;
+  const o=byId(S.active); o.chat=o.chat||[]; o.chat.push({me:true,t,tm:now()});
+  render(); toast('Отправлено клиенту в '+o.ch);
+}
 function startDemo(){
-  S.screen='app'; S.role='manager'; S.active='124'; S.parsing=true; render();
-  setTimeout(()=>{ S.parsing=false; byId('124').status='clarify'; render();
+  S.screen='app'; S.role='manager'; S.active='12'; S.parsing=true; render();
+  setTimeout(()=>{ S.parsing=false; byId('12').status='clarify'; render();
     toast('ИИ разобрал заявку: это заказ, не хватает двух полей'); }, 1500);
 }
 function sendQuestion(){
-  toast('Вопрос отправлен клиенту в Telegram');
-  setTimeout(()=>{ const o=byId('124');
+  const o=byId(S.active);
+  o.chat=o.chat||[]; o.chat.push({me:true,t:o.q,tm:now()});
+  toast('Вопрос отправлен клиенту в '+o.ch);
+  setTimeout(()=>{
+    o.chat.push({me:false,t:'Пушкино, ул. Ленина 15, кв. 3. Телефон +7 916 700-12-45',tm:now()});
     o.phone='+7 916 700-12-45'; o.who='Мария'; o.addr='ул. Ленина 15, кв. 3';
     o.missing=[]; o.status='new'; render();
     toast('Клиент ответил — поля дописаны в ту же карточку'); }, 1200);
 }
 function setPay(p){ byId(S.active).pay=p; render();
   toast(p==='link'?'Оплата: ссылка СБП уйдёт клиенту':'Оплата: на месте, курьеру'); }
+function focusOrder(st){
+  const a=byId(S.active); if(a && a.status===st) return a;
+  return S.orders.find(o=>o.status===st);
+}
 function toWork(){
-  const o=byId(S.active); if((o.missing||[]).length) return;
-  o.status='work'; render();
+  const o=byId(S.active); if(!o || (o.missing||[]).length) return;
+  o.status='work'; o.chat=o.chat||[];
+  o.chat.push({me:true,t:o.pay==='link'?'Заказ подтверждён, ссылка на оплату отправлена. Собираем.':'Заказ подтверждён. Собираем, курьер приедет в ваше окно.',tm:now()});
+  render();
   toast(o.pay==='link'?'На планшете флориста · ссылка на оплату отправлена':'На планшете флориста · оплата на месте');
   setTimeout(()=>{ S.role='florist'; render(); }, 900);
 }
 function assembled(){
-  const o=S.orders.find(x=>x.status==='work')||byId(S.active);
+  const o=focusOrder('work'); if(!o) return;
+  S.active=o.id;
   if(o.standard){ o.status='courier'; render(); toast('Стандартный заказ — ОТК не требуется');
     setTimeout(()=>{S.role='courier';render()},700); }
   else { o.status='otk'; render(); toast('Нестандарт → отправлено на ОТК');
     setTimeout(()=>{ S.role='manager'; render(); }, 800); }
 }
 function otkAccept(){
-  const o=S.orders.find(x=>x.status==='otk'); o.status='courier'; render();
-  toast('ОТК пройден — заказ у курьера');
+  const o=focusOrder('otk'); if(!o) return; S.active=o.id;
+  o.status='courier'; render(); toast('ОТК пройден — заказ у курьера');
   setTimeout(()=>{ S.role='courier'; render(); }, 800);
 }
 function otkReturn(){
-  const o=S.orders.find(x=>x.status==='otk'); o.status='work'; render();
-  toast('Возвращено флористу с комментарием');
+  const o=focusOrder('otk'); if(!o) return; S.active=o.id;
+  o.status='work'; render(); toast('Возвращено флористу с комментарием');
   setTimeout(()=>{ S.role='florist'; render(); }, 800);
 }
 function delivered(){
-  const o=S.orders.find(x=>x.status==='courier'); if(!o) return;
+  const o=focusOrder('courier'); if(!o) return; S.active=o.id;
   o.status='delivered'; S.live.revenue += sum(o); S.live.orders += 1;
   render(); toast('Вручено · владелица видит факт и сумму в аналитике');
   setTimeout(()=>{ S.role='owner'; render(); }, 900);
@@ -675,8 +809,11 @@ function applyQuery(){
   const q=new URLSearchParams(location.search), r=q.get('r'); if(!r) return;
   S.screen='app';
   if(r==='map'){ S.role='map'; return; }
-  const o=byId('124');
+  if(r==='question'){ S.role='manager'; S.active='4'; return; }
+  if(r==='linked'){ S.role='manager'; S.active='6'; return; }
+  const o=byId('12');
   if(['florist','courier','owner'].includes(r)){
+    S.active='12';
     o.status = r==='florist'?'work':(r==='courier'?'courier':'delivered');
     o.who='Мария'; o.phone='+7 916 700-12-45'; o.addr='ул. Ленина 15, кв. 3'; o.missing=[]; o.pay='link';
     if(r==='owner') S.live={orders:1,revenue:sum(o)};

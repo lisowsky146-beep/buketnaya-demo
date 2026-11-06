@@ -250,6 +250,143 @@
     .roles{order:3;margin-left:0}
   }
 </style>
+
+<style>
+/* ---------- v3: крупнее, плотнее, на весь экран ---------- */
+.wrap{max-width:1380px;padding:0 36px}
+body{font-size:16px}
+
+/* лендинг */
+.top{padding:22px 0}
+.hero{min-height:calc(100vh - 210px);padding:10px 0 30px;gap:64px;align-items:center}
+.hero h1{font-size:clamp(46px,5vw,74px);line-height:1.03}
+.hero p.lead{font-size:19.5px;line-height:1.6;max-width:50ch;margin-top:22px}
+.eyebrow{font-size:12.5px;margin-bottom:20px}
+.cta{margin-top:30px;gap:20px}
+.cta small{font-size:14px}
+.btn{padding:16px 28px;font-size:16.5px}
+.btn.small{padding:10px 18px;font-size:14px}
+.facts{gap:52px;margin-top:34px}
+.fact b{font-size:30px}
+.fact span{font-size:13.5px}
+.preview{padding:28px 30px;border-radius:22px}
+.preview .ph{font-size:12.5px}
+.preview .nm{font-size:32px;margin:14px 0 4px}
+.preview .row{font-size:15.5px;padding:11px 0}
+.preview .chip{font-size:12.5px;padding:6px 12px}
+
+/* приложение */
+.appbar .inner{padding:12px 0;gap:18px}
+.appbar .brand{font-size:11.5px}
+.roles button{padding:9px 18px;font-size:14px}
+.dev{font-size:11.5px;padding:6px 12px}
+.steps{padding:12px 0 2px;gap:8px}
+.step{font-size:13px}
+.step i{width:22px;height:22px;font-size:11px}
+main{padding:22px 0 64px}
+.grid{grid-template-columns:340px 1fr;gap:24px}
+.inbox{padding:12px}
+.inbox h3{font-size:11.5px;padding:8px 12px}
+.msg{padding:13px 14px}
+.msg .t{font-size:14px}
+.msg .s{font-size:13.5px;-webkit-line-clamp:2}
+.detail{padding:28px 32px 26px}
+.dhead .id{font-size:42px}
+.dhead .sub{font-size:14px;margin-top:10px}
+.raw{font-size:15px;padding:15px 18px;margin-top:18px}
+.raw b{font-size:11.5px}
+.fields{margin-top:20px}
+.f{padding:14px 17px}
+.f span{font-size:11px}
+.f b{font-size:16px}
+.items{margin-top:20px}
+.it{font-size:16px;padding:13px 0}
+.it .n{font-size:13.5px}
+.thumb{width:50px;height:50px}
+.total{padding:16px 0 4px;font-size:17px}
+.total b{font-size:32px}
+.restrict{margin-top:18px;padding:15px 18px}
+.restrict h4{font-size:11.5px}
+.chip{font-size:13px;padding:6px 12px}
+.pay{margin-top:18px;padding:16px 18px}
+.payhead h4{font-size:11.5px}
+.linkrow code{font-size:13.5px;padding:9px 13px}
+.ask{margin-top:18px;padding:17px}
+.ask h4{font-size:11.5px}
+.ask p{font-size:16px}
+.actions{margin-top:22px}
+.pill{font-size:11.5px;padding:3px 10px}
+.why{font-size:13.5px}
+
+/* флорист */
+.florist{grid-template-columns:1fr 320px;gap:24px}
+.kds{padding:34px 36px}
+.kds .num{font-size:48px}
+.kds .when b{font-size:22px}
+.kds h2{font-size:13.5px;margin:26px 0 12px}
+.kds .comp{font-size:26px}
+.kds .comp small{font-size:15px}
+.kds .stop{font-size:17px;padding:13px 18px}
+.kds .box{padding:16px 18px}
+.kds .box b{font-size:17px}
+.kds .box span{font-size:11px}
+.kds .btn{padding:20px;font-size:17px}
+.queue .q{padding:16px;font-size:14.5px}
+.queue .q b{font-size:20px}
+.ref{height:200px}
+
+/* курьер */
+.phone{max-width:470px}
+.phone .hd{padding:24px 26px}
+.phone .hd b{font-size:27px}
+.phone .bd{padding:24px 26px}
+.phone .kv b{font-size:17.5px}
+.phone .kv span{font-size:11px}
+
+/* владелица */
+.head h2{font-size:34px}
+.kpi{padding:20px 22px}
+.kpi b{font-size:32px}
+.kpi span{font-size:11.5px}
+.metrics{gap:16px}
+.chart{height:230px}
+.rw{font-size:14.5px;padding:11px 0}
+.alertrow{font-size:14.5px;padding:13px 20px}
+
+/* карта экранов */
+.maptitle{font-size:34px}
+.mapgrid{gap:18px}
+.mc{padding:22px}
+.mc h3{font-size:23px}
+.mc ul{font-size:14px}
+.mc .no{font-size:13px}
+
+/* чат */
+.bub{font-size:14.5px}
+.composer textarea{font-size:14.5px;min-height:60px}
+</style>
+
+<style>
+/* ---------- v3.1: убираем лишний воздух, чтобы кнопка действия была видна ---------- */
+.detail{padding:22px 28px 20px}
+.raw{margin-top:12px;padding:12px 16px}
+.fields{margin-top:14px}
+.f{padding:11px 15px}
+.items{margin-top:12px}
+.it{padding:10px 0}
+.total{padding:12px 0 2px}
+.pay{margin-top:12px;padding:13px 15px}
+.ask{margin-top:12px;padding:13px 15px}
+.actions{margin-top:14px}
+.restrict{margin-top:12px;padding:12px 15px}
+.grid{gap:20px}
+main{padding:16px 0 40px}
+.steps{padding:10px 0 0}
+.dhead .sub{margin-top:6px}
+/* ключевая кнопка всегда на виду */
+.actions.bar{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 40%);
+  padding:12px 0 4px;margin-top:12px;z-index:5}
+</style>
 </head>
 <body>
 <div id="root"></div>
@@ -619,7 +756,7 @@ function manager(){
             : '';
   const paySeg = '';
 
-  const bar = o.status==='new' ? `<div class="actions">
+  const bar = o.status==='new' ? `<div class="actions bar">
       <button class="btn" ${canWork?'':'disabled'} onclick="toWork()">В работу →</button>
       <div class="grow"></div>
       ${canWork ? `<span style="font-size:13px;color:#3E5A49">всё заполнено и оплачено — можно собирать</span>`

@@ -392,7 +392,21 @@ main{padding:16px 0 40px}
 <div id="root"></div>
 <div class="toast" id="toast"></div>
 <script>
-/* ---------- каталог готовых букетов ---------- */
+/* ============================================================================
+   БУКЕТНАЯ · демо. КАРТА ФАЙЛА — что искать при правках
+   ----------------------------------------------------------------------------
+   [1] КАТАЛОГ БУКЕТОВ   → const CAT          (строка ~400)  цены, названия, состав
+   [2] ГРАФИКИ ВЛАДЕЛЬЦА → const WEEK / TOP / CHAN           цифры за неделю
+   [3] ЗАЯВКИ            → const S = { orders:[ ... ] }      тексты, статусы, суммы
+   [4] СТАТУСЫ           → const STATUS                     как называются статусы
+   [5] ЭКРАНЫ            → function manager/florist/courier/owner
+   [6] КНОПКИ            → function nextStep / toWork / assembled / ...
+   [7] ТЕКСТЫ ЛЕНДИНГА   → function landing()
+   [8] ЦВЕТА И ШРИФТЫ    → <style> в начале файла + блоки «v3» в конце
+   Ищите по слову в кавычках из шпаргалки — и попадёте точно в нужное место.
+   ========================================================================== */
+
+/* [1] ---------- каталог готовых букетов ---------- */
 const CAT = {
   p1:{name:'Полевой', comp:'герберы, ромашки, сухоцветы', price:2100, c1:'#E4D3A6', c2:'#93A783'},
   p2:{name:'Пионовый рассвет', comp:'5 пионов, эвкалипт', price:4900, c1:'#F0C9CD', c2:'#C4848C'},
@@ -403,7 +417,7 @@ const CAT = {
 };
 const thumb = id => `background:linear-gradient(140deg,${CAT[id].c1},${CAT[id].c2})`;
 
-/* ---------- неделя ---------- */
+/* [2] ---------- графики владельца: неделя, топ букетов, каналы ---------- */
 const WEEK = [
   {d:'пн', o:9,  r:38400},{d:'вт', o:11, r:44100},{d:'ср', o:8,  r:31200},
   {d:'чт', o:12, r:51600},{d:'пт', o:14, r:58900},{d:'сб', o:13, r:54700},{d:'вс', o:10, r:39800}
@@ -411,6 +425,7 @@ const WEEK = [
 const TOP = [['p1',24],['p2',19],['p3',17],['p4',12],['p5',9]];
 const CHAN = [['Telegram',38],['Форма на сайте',24],['Телефон',12],['Direct',3]];
 
+/* [3] ---------- заявки: тексты, статусы, суммы ---------- */
 const S = {
   screen:'landing', role:'manager', parsing:false, active:'1',
   live:{ orders:0, revenue:0 },
@@ -560,7 +575,7 @@ function stepIndex(){
   return 3;
 }
 
-/* ---------- landing ---------- */
+/* [7] ---------- тексты лендинга ---------- */
 function landing(){
   return `<div class="wrap">
     <div class="top">
@@ -789,7 +804,7 @@ function manager(){
   </div>`;
 }
 
-/* ---------- florist ---------- */
+/* [5] ---------- экран флориста ---------- */
 function florist(){
   const list=S.orders.filter(o=>o.status==='work');
   const o=list.find(x=>x.id===S.active)||list[0];
@@ -822,7 +837,7 @@ function florist(){
     </div></div>`;
 }
 
-/* ---------- courier ---------- */
+/* [5] ---------- экран курьера ---------- */
 function courier(){
   const o=S.orders.find(x=>x.status==='courier');
   if(!o) return `<div class="card detail" style="max-width:520px;margin:0 auto"><div class="busy">
@@ -841,7 +856,7 @@ function courier(){
     </div></div>`;
 }
 
-/* ---------- owner ---------- */
+/* [5] ---------- экран владельца ---------- */
 function owner(){
   const wo = WEEK.reduce((s,d)=>s+d.o,0) + S.live.orders;
   const wr = WEEK.reduce((s,d)=>s+d.r,0) + S.live.revenue;
@@ -935,7 +950,7 @@ function map(){
     и статус. Ничего не устанавливает.</div>`;
 }
 
-/* ---------- действия ---------- */
+/* [6] ---------- кнопки и действия ---------- */
 function pick(id){ S.active=id; render(); }
 function fillMsg(btn){ const el=document.getElementById('msg'); if(el){ el.value=btn.dataset.t; el.focus(); } }
 function sendMsg(){
